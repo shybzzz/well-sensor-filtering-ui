@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MqttService } from 'ngx-mqtt';
+import { GoogleChartPackagesHelper } from 'angular-google-charts';
 
 @Component({
   selector: 'app-root',
@@ -8,13 +9,7 @@ import { MqttService } from 'ngx-mqtt';
 })
 export class AppComponent implements OnInit {
   title = 'well-sensor-filtering-ui';
-  d = [
-    ['London', 8136000],
-    ['New York', 8538000],
-    ['Paris', 2244000],
-    ['Berlin', 3470000],
-    ['Kairo', 19500000]
-  ];
+  d = [];
 
   constructor(private mqtt: MqttService) {}
 
@@ -26,6 +21,12 @@ export class AppComponent implements OnInit {
       servers: [{ host: 'perfect-politician.cloudmqtt.com', port: 443 }]
     });
 
-    mqtt.observe('Rostyk/Data').subscribe(r => console.log(r));
+    mqtt.observe('Rostyk/Data').subscribe(r => {
+      const value = JSON.parse(r.payload.toString()).value;
+      this.d = [
+        ...this.d,
+        [new Date(), value.data, value.median, value.mean, value.expSmooth]
+      ];
+    });
   }
 }
