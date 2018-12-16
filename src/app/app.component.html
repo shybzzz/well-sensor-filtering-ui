@@ -1,5 +1,30 @@
+<div [formGroup]="formGroup">
+  <div>
+    <a
+      href="https://docs.google.com/document/d/18cYyK1GYcY2W2J5KMjsQlGrkJ_UZWJIj4KErx8LhJrA"
+      target="blank"
+      >Available Configurations</a
+    >
+  </div>
+  <label>
+    <div>Configuration</div>
+    <div><textarea [formControl]="config"></textarea></div>
+  </label>
+  <div *ngIf="config.errors; else: submitBtn">
+    {{ config.errors['invalidJSON'] }}
+  </div>
+  <ng-template #submitBtn>
+    <button (click)="reconnect()">Connect</button>
+    <button (click)="disconnect()">Disonnect</button>
+  </ng-template>
+</div>
+<div>
+  <label
+    >Samples in Frame: <input type="number" [(ngModel)]="samplesInFrame"
+  /></label>
+</div>
 <google-chart
-  [title]="'Hello'"
+  [title]="title"
   [type]="'LineChart'"
   [data]="d"
   [columnNames]="['Date', 'Data', 'Median', 'Mean', 'Exp Smooth']"
