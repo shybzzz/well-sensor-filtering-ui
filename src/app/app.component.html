@@ -1,16 +1,13 @@
 <div [formGroup]="formGroup">
   <div>
-    <a
-      href="https://docs.google.com/document/d/18cYyK1GYcY2W2J5KMjsQlGrkJ_UZWJIj4KErx8LhJrA"
-      target="blank"
-      >Available Configurations</a
-    >
+    <a href="https://docs.google.com/document/d/18cYyK1GYcY2W2J5KMjsQlGrkJ_UZWJIj4KErx8LhJrA" target="blank">Available
+      Configurations</a>
   </div>
   <label>
     <div>Configuration</div>
     <div><textarea [formControl]="config"></textarea></div>
   </label>
-  <div *ngIf="config.errors; else: submitBtn">
+  <div *ngIf="config.errors; else submitBtn">
     {{ config.errors['invalidJSON'] }}
   </div>
   <ng-template #submitBtn>
@@ -19,15 +16,13 @@
   </ng-template>
 </div>
 <div>
-  <label
-    >Samples in Frame: <input type="number" [(ngModel)]="samplesInFrame"
-  /></label>
+  <label>Samples in Frame: <input type="number" [(ngModel)]="samplesInFrame" /></label>
 </div>
-<google-chart
-  [title]="title"
-  [type]="'LineChart'"
-  [data]="d"
-  [columnNames]="['Date', 'Data', 'Median', 'Mean', 'Exp Smooth']"
-  [height]="600"
-  [width]="800"
-></google-chart>
+
+<!-- <button mat-raised-button (click)="openConfigurationDialog()">Configure</button> -->
+
+<app-line-chart [data]="temperature$ | async" [name]="temperatureName"></app-line-chart>
+<app-line-chart [data]="depth$ | async" [name]="depthName"></app-line-chart>
+<app-line-chart [data]="solarPower$ | async" [name]="solarPowerName"></app-line-chart>
+<app-line-chart [data]="consumption$ | async" [name]="consumptionName"></app-line-chart>
+<app-line-chart [data]="discharge$ | async" [name]="dischargeName"></app-line-chart>
