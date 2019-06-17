@@ -19,7 +19,7 @@
   <label>Samples in Frame: <input type="number" [(ngModel)]="samplesInFrame" /></label>
 </div>
 
-<!-- <button mat-raised-button (click)="openConfigurationDialog()">Configure</button> -->
+<button mat-raised-button (click)="openConfigurationDialog()">Configure</button>
 
 <app-line-chart [data]="temperature$ | async" [name]="temperatureName"></app-line-chart>
 <app-line-chart [data]="depth$ | async" [name]="depthName"></app-line-chart>
