@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MqttService, MqttConnectionState } from 'ngx-mqtt';
-import { FormGroup, FormControl, AbstractControl } from '@angular/forms';
+import { FormGroup, FormControl, AbstractControl, Validators } from '@angular/forms';
 import { Subscription, BehaviorSubject, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CombinedSensorData } from './model/combined-sensor-data';
@@ -12,28 +12,61 @@ import { CombinedSensorData } from './model/combined-sensor-data';
 })
 export class AppComponent implements OnInit {
   title: string;
-  samplesInFrame = 200;
-
-  mqttState: MqttConnectionState;
-
-  config = new FormControl(
-    // tslint:disable-next-line:max-line-length
-    '{"deviceId":"Il/C","apSSID":"Well Sensor","apIP":"192.168.4.1","appPwd":"11111111","server":"perfect-politician.cloudmqtt.com","port":1883,"wssPort":443,"user":"gelphadi","mqttPwd":"oYMgWJETz_0N"}',
-    (c: AbstractControl) => {
-      try {
-        JSON.parse(c.value);
-        return null;
-      } catch ({ message }) {
-        return { invalidJSON: message };
-      }
-    }
-  );
+  samplesInFrame = 1000;
 
   subscription: Subscription;
 
+  mqttState: MqttConnectionState;
+
+  get isConnected(): boolean {
+    return this.mqttState == MqttConnectionState.CONNECTED;
+  }
+
+  // config = new FormControl(
+  //   // tslint:disable-next-line:max-line-length
+  //   '{"deviceId":"Il/C","apSSID":"Well Sensor","apIP":"192.168.4.1","appPwd":"11111111","server":"perfect-politician.cloudmqtt.com","port":1883,"wssPort":443,"user":"gelphadi","mqttPwd":"oYMgWJETz_0N"}',
+  //   (c: AbstractControl) => {
+  //     try {
+  //       JSON.parse(c.value);
+  //       return null;
+  //     } catch ({ message }) {
+  //       return { invalidJSON: message };
+  //     }
+  //   }
+  // );
+
+  deviceId = new FormControl(
+    'Il/C', [Validators.required]
+  );
+
+  server = new FormControl(
+    'perfect-politician.cloudmqtt.com', [Validators.required]
+  );
+
+  wssPort = new FormControl(
+    443, [Validators.required]
+  );
+
+  user = new FormControl(
+    'gelphadi', [Validators.required]
+  );
+
+  mqttPwd = new FormControl(
+    'oYMgWJETz_0N', [Validators.required]
+  );
+
   formGroup = new FormGroup({
-    config: this.config
+    // config: this.config
+    deviceId: this.deviceId,
+    server: this.server,
+    wssPort: this.wssPort,
+    user: this.user,
+    mqttPwd: this.mqttPwd
   });
+
+  get errors() {
+    return Object.values(this.formGroup.controls).filter(c => !!c.errors);
+  }
 
   rawData$ = new BehaviorSubject<{ last: CombinedSensorData, series: CombinedSensorData[] }>({ last: <CombinedSensorData>{}, series: [] });
 
@@ -111,7 +144,8 @@ export class AppComponent implements OnInit {
       wssPort?: number;
       user: string;
       mqttPwd: string;
-    } = JSON.parse(this.config.value);
+    } = this.formGroup.value;
+    // JSON.parse(this.config.value);
     const deviceId = v.deviceId;
     this.title = deviceId;
     mqtt.connect({
@@ -119,8 +153,6 @@ export class AppComponent implements OnInit {
       password: v.mqttPwd,
       servers: [{ host: v.server, port: v.wssPort }]
     });
-
-    console.log('Connected');
 
     this.subscription = mqtt.observe(`${deviceId}/Data`).subscribe(r => {
       const value: CombinedSensorData = JSON.parse(r.payload.toString()).value;

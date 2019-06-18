@@ -1,9 +1,16 @@
-textarea {
-  width: 50em;
-  height: 6em;
-}
-
 app-line-chart {
   display: block;
   height: 256px;
+}
+
+mat-sidenav {
+  width: 350px;
+}
+
+mat-form-field {
+  width: 22em;
+}
+
+textarea {
+  height: 10em;
 }

@@ -1,28 +1,57 @@
-<div [formGroup]="formGroup">
-  <div>
-    <a href="https://docs.google.com/document/d/18cYyK1GYcY2W2J5KMjsQlGrkJ_UZWJIj4KErx8LhJrA" target="blank">Available
-      Configurations</a>
-  </div>
-  <label>
-    <div>Configuration</div>
-    <div><textarea [formControl]="config"></textarea></div>
-  </label>
-  <div *ngIf="config.errors; else submitBtn">
-    {{ config.errors['invalidJSON'] }}
-  </div>
-  <ng-template #submitBtn>
-    <button (click)="reconnect()">Connect</button>
-    <button (click)="disconnect()">Disonnect</button>
-  </ng-template>
-</div>
-<div>
-  <label>Samples in Frame: <input type="number" [(ngModel)]="samplesInFrame" /></label>
-</div>
+<mat-sidenav-container>
+  <mat-sidenav mode="side" opened>
+    <mat-accordion>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            MQTT Settings
+          </mat-panel-title>
 
-<button mat-raised-button (click)="openConfigurationDialog()">Configure</button>
+        </mat-expansion-panel-header>
+        <div [formGroup]="formGroup">
+          <mat-form-field>
+            <input matInput type="text" placeholder="Device" [formControl]="deviceId">
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput type="text" placeholder="MQTT Server" [formControl]="server">
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput type="number" placeholder="WSS Port" [formControl]="wssPort">
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput type="text" placeholder="User" [formControl]="user">
+          </mat-form-field>
+          <mat-form-field>
+            <input matInput type="password" placeholder="Password" [formControl]="mqttPwd">
+          </mat-form-field>
+          <!-- <mat-form-field>
+            <textarea matInput placeholder="MQTT Configuration" [formControl]="config"></textarea>
+          </mat-form-field> -->
+          <button mat-raised-button [matBadge]="isConnected?'v':'x'"
+            [matBadgeDescription]="isConnected?'Connected':'No Connection'"
+            [matBadgeColor]="isConnected?'primary':'warn'" (click)="reconnect()"
+            [disabled]="!!errors?.length">Connect</button>
+        </div>
 
-<app-line-chart [data]="temperature$ | async" [name]="temperatureName"></app-line-chart>
-<app-line-chart [data]="depth$ | async" [name]="depthName"></app-line-chart>
-<app-line-chart [data]="solarPower$ | async" [name]="solarPowerName"></app-line-chart>
-<app-line-chart [data]="consumption$ | async" [name]="consumptionName"></app-line-chart>
-<app-line-chart [data]="discharge$ | async" [name]="dischargeName"></app-line-chart>
+      </mat-expansion-panel>
+      <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Chart Settings
+          </mat-panel-title>
+
+        </mat-expansion-panel-header>
+        <mat-form-field>
+          <input type="number" [(ngModel)]="samplesInFrame" matInput placeholder="Samples in Frame" value="Sushi">
+        </mat-form-field>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <app-line-chart [data]="temperature$ | async" [name]="temperatureName"></app-line-chart>
+    <app-line-chart [data]="depth$ | async" [name]="depthName"></app-line-chart>
+    <app-line-chart [data]="solarPower$ | async" [name]="solarPowerName"></app-line-chart>
+    <app-line-chart [data]="consumption$ | async" [name]="consumptionName"></app-line-chart>
+    <app-line-chart [data]="discharge$ | async" [name]="dischargeName"></app-line-chart>
+  </mat-sidenav-content>
+</mat-sidenav-container>
