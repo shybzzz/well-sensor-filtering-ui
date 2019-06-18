@@ -14,7 +14,7 @@ export class LineChartComponent implements OnInit {
   @Input() name: string;
 
   colorScheme = {
-    domain: [scheme[Math.round(Math.random() * scheme.length - 1)]]
+    domain: [scheme[Math.round(Math.random() * (scheme.length - 1))]]
   };
 
 
