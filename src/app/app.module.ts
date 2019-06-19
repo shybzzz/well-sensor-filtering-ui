@@ -7,7 +7,6 @@ import { MqttModule } from 'ngx-mqtt';
 
 import { AppComponent } from './app.component';
 
-import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { LineChartModule } from './components/line-chart/line-chart.module';
 
 @NgModule({
