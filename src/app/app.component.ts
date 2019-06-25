@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { MqttService, MqttConnectionState } from 'ngx-mqtt';
-import { FormGroup, FormControl, AbstractControl, Validators } from '@angular/forms';
-import { Subscription, BehaviorSubject, combineLatest } from 'rxjs';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { Subscription, BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CombinedSensorData } from './model/combined-sensor-data';
+import { toCelsius, getDepth } from './well-sensor/data-transformations';
+import { Gut800Settings } from './model/gut800-settings';
 
 @Component({
   selector: 'app-root',
@@ -19,44 +21,19 @@ export class AppComponent implements OnInit {
   mqttState: MqttConnectionState;
 
   get isConnected(): boolean {
-    return this.mqttState == MqttConnectionState.CONNECTED;
+    return this.mqttState === MqttConnectionState.CONNECTED;
   }
 
-  // config = new FormControl(
-  //   // tslint:disable-next-line:max-line-length
-  //   '{"deviceId":"Il/C","apSSID":"Well Sensor","apIP":"192.168.4.1","appPwd":"11111111","server":"perfect-politician.cloudmqtt.com","port":1883,"wssPort":443,"user":"gelphadi","mqttPwd":"oYMgWJETz_0N"}',
-  //   (c: AbstractControl) => {
-  //     try {
-  //       JSON.parse(c.value);
-  //       return null;
-  //     } catch ({ message }) {
-  //       return { invalidJSON: message };
-  //     }
-  //   }
-  // );
+  // deviceId = new FormControl('test', [Validators.required]);
+  deviceId = new FormControl('Il/C', [Validators.required]);
+  server = new FormControl('perfect-politician.cloudmqtt.com', [
+    Validators.required
+  ]);
+  wssPort = new FormControl(443, [Validators.required]);
+  user = new FormControl('gelphadi', [Validators.required]);
+  mqttPwd = new FormControl('oYMgWJETz_0N', [Validators.required]);
 
-  deviceId = new FormControl(
-    'Il/C', [Validators.required]
-  );
-
-  server = new FormControl(
-    'perfect-politician.cloudmqtt.com', [Validators.required]
-  );
-
-  wssPort = new FormControl(
-    443, [Validators.required]
-  );
-
-  user = new FormControl(
-    'gelphadi', [Validators.required]
-  );
-
-  mqttPwd = new FormControl(
-    'oYMgWJETz_0N', [Validators.required]
-  );
-
-  formGroup = new FormGroup({
-    // config: this.config
+  mqttSettingsForm = new FormGroup({
     deviceId: this.deviceId,
     server: this.server,
     wssPort: this.wssPort,
@@ -64,58 +41,111 @@ export class AppComponent implements OnInit {
     mqttPwd: this.mqttPwd
   });
 
-  get errors() {
-    return Object.values(this.formGroup.controls).filter(c => !!c.errors);
+  get mqttSettingsErrors() {
+    return Object.values(this.mqttSettingsForm.controls).filter(
+      c => !!c.errors
+    );
   }
 
-  rawData$ = new BehaviorSubject<{ last: CombinedSensorData, series: CombinedSensorData[] }>({ last: <CombinedSensorData>{}, series: [] });
+  referenceDepth = new FormControl(7, [Validators.required]);
+  minCurrent = new FormControl(4e-3, [Validators.required]);
+  maxCurrent = new FormControl(20e-3, [Validators.required]);
+  r = new FormControl(51, [Validators.required]);
+  maxDepth = new FormControl(7, [Validators.required]);
+  voltage = new FormControl(3.3, [Validators.required]);
+  resolution = new FormControl(12, [Validators.required]);
 
-  temperatureName = 'Temperature';
-  temperature$ = this.rawData$.pipe(map(data =>
-    [{
-      name: `${this.temperatureName} ${data.last.temperature / 100} C`, series: data.series.map(sensorData => {
-        return { name: sensorData.date, value: sensorData.temperature / 100 };
-      })
-    }]
-  ));
+  gut800SettingsForm = new FormGroup({
+    referenceDepth: this.referenceDepth,
+    minCurrent: this.minCurrent,
+    maxCurrent: this.maxCurrent,
+    r: this.r,
+    maxDepth: this.maxDepth,
+    voltage: this.voltage,
+    resolution: this.resolution
+  });
 
-  depthName = 'Depth';
-  depth$ = this.rawData$.pipe(map(data =>
-    [{
-      name: `${this.depthName} ${data.last.depth}`, series: data.series.map(sensorData => {
-        return { name: sensorData.date, value: sensorData.depth };
-      })
-    }]
-  ));
+  get gut800SettingsErrors() {
+    return Object.values(this.gut800SettingsForm.controls).filter(
+      c => !!c.errors
+    );
+  }
+
+  gut800Settings: Gut800Settings = this.gut800SettingsForm.value;
+
+  rawData$ = new BehaviorSubject<{
+    last: CombinedSensorData;
+    series: CombinedSensorData[];
+  }>({ last: <CombinedSensorData>{}, series: [] });
+
+  temperatureName = 'Temperature, C';
+  temperature$ = this.rawData$.pipe(
+    map(data => [
+      {
+        name: `${this.temperatureName} ${toCelsius(data.last.temperature)} C`,
+        series: data.series.map(sensorData => {
+          return {
+            name: sensorData.date,
+            value: toCelsius(sensorData.temperature)
+          };
+        })
+      }
+    ])
+  );
+
+  depthName = 'Depth, m';
+
+  depth$ = this.rawData$.pipe(
+    map(data => [
+      {
+        name: `${this.depthName} ${this.toDepth(data.last.depth)} m`,
+        series: data.series.map(sensorData => {
+          return {
+            name: sensorData.date,
+            value: this.toDepth(sensorData.depth)
+          };
+        })
+      }
+    ])
+  );
 
   solarPowerName = 'Solar Power';
-  solarPower$ = this.rawData$.pipe(map(data =>
-    [{
-      name: `${this.solarPowerName} ${data.last.solarCurrent}`, series: data.series.map(sensorData => {
-        return { name: sensorData.date, value: sensorData.solarCurrent };
-      })
-    }]
-  ));
+  solarPower$ = this.rawData$.pipe(
+    map(data => [
+      {
+        name: `${this.solarPowerName} ${data.last.solarCurrent}`,
+        series: data.series.map(sensorData => {
+          return { name: sensorData.date, value: sensorData.solarCurrent };
+        })
+      }
+    ])
+  );
 
   consumptionName = 'Consumption';
-  consumption$ = this.rawData$.pipe(map(data =>
-    [{
-      name: `${this.consumptionName} ${data.last.consumption}`, series: data.series.map(sensorData => {
-        return { name: sensorData.date, value: sensorData.consumption };
-      })
-    }]
-  ));
+  consumption$ = this.rawData$.pipe(
+    map(data => [
+      {
+        name: `${this.consumptionName} ${data.last.consumption}`,
+        series: data.series.map(sensorData => {
+          return { name: sensorData.date, value: sensorData.consumption };
+        })
+      }
+    ])
+  );
 
   dischargeName = 'Discharge';
-  discharge$ = this.rawData$.pipe(map(data =>
-    [{
-      name: `${this.dischargeName} ${data.last.discharge}`, series: data.series.map(sensorData => {
-        return { name: sensorData.date, value: sensorData.discharge };
-      })
-    }]
-  ));
+  discharge$ = this.rawData$.pipe(
+    map(data => [
+      {
+        name: `${this.dischargeName} ${data.last.discharge}`,
+        series: data.series.map(sensorData => {
+          return { name: sensorData.date, value: sensorData.discharge };
+        })
+      }
+    ])
+  );
 
-  constructor(private mqtt: MqttService) { }
+  constructor(private mqtt: MqttService) {}
 
   ngOnInit() {
     this.mqtt.state.subscribe(s => {
@@ -144,8 +174,7 @@ export class AppComponent implements OnInit {
       wssPort?: number;
       user: string;
       mqttPwd: string;
-    } = this.formGroup.value;
-    // JSON.parse(this.config.value);
+    } = this.mqttSettingsForm.value;
     const deviceId = v.deviceId;
     this.title = deviceId;
     mqtt.connect({
@@ -163,15 +192,28 @@ export class AppComponent implements OnInit {
       const newData = { date, ...value };
 
       data$.next({
-        last: newData, series: [
-          ...(series.length < this.samplesInFrame
-            ? series
-            : series.slice(1)),
+        last: newData,
+        series: [
+          ...(series.length < this.samplesInFrame ? series : series.slice(1)),
           newData
         ]
       });
-
     });
+
+    this.resetChart();
+  }
+
+  openConfigurationDialog() {
+    console.log('hello');
+  }
+
+  resetChart() {
+    this.rawData$.next({ last: <CombinedSensorData>{}, series: [] });
+  }
+
+  applyGut800Settings() {
+    this.gut800Settings = this.gut800SettingsForm.value;
+    this.resetChart();
   }
 
   private disconnect() {
@@ -180,7 +222,17 @@ export class AppComponent implements OnInit {
     }
   }
 
-  openConfigurationDialog() {
-    console.log("hello")
+  private toDepth(arbUnits: number) {
+    const settings = this.gut800Settings;
+    return getDepth(
+      arbUnits,
+      settings.referenceDepth,
+      settings.minCurrent,
+      settings.maxCurrent,
+      settings.r,
+      settings.maxDepth,
+      settings.voltage,
+      settings.resolution
+    );
   }
 }
