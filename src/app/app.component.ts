@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MqttService, MqttConnectionState } from 'ngx-mqtt';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Subscription, BehaviorSubject } from 'rxjs';
+import { Subscription, BehaviorSubject, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CombinedSensorData } from './model/combined-sensor-data';
 import { toCelsius, getDepth } from './well-sensor/data-transformations';
@@ -73,16 +73,21 @@ export class AppComponent implements OnInit {
 
   gut800Settings: Gut800Settings = this.gut800SettingsForm.value;
 
-  rawData$ = new BehaviorSubject<{
+  temperatureName = 'Temperature';
+  depthName = 'Depth';
+  solarPowerName = 'Solar Power';
+  consumptionName = 'Consumption';
+  dischargeName = 'Discharge';
+
+  data$ = new BehaviorSubject<{
     last: CombinedSensorData;
     series: CombinedSensorData[];
   }>({ last: <CombinedSensorData>{}, series: [] });
 
-  temperatureName = 'Temperature, C';
-  temperature$ = this.rawData$.pipe(
+  temperature$ = this.data$.pipe(
     map(data => [
       {
-        name: `${this.temperatureName} ${toCelsius(data.last.temperature)} C`,
+        name: `${this.temperatureName}`,
         series: data.series.map(sensorData => {
           return {
             name: sensorData.date,
@@ -93,12 +98,10 @@ export class AppComponent implements OnInit {
     ])
   );
 
-  depthName = 'Depth, m';
-
-  depth$ = this.rawData$.pipe(
+  depth$ = this.data$.pipe(
     map(data => [
       {
-        name: `${this.depthName} ${this.toDepth(data.last.depth)} m`,
+        name: `${this.depthName}`,
         series: data.series.map(sensorData => {
           return {
             name: sensorData.date,
@@ -109,11 +112,10 @@ export class AppComponent implements OnInit {
     ])
   );
 
-  solarPowerName = 'Solar Power';
-  solarPower$ = this.rawData$.pipe(
+  solarPower$ = this.data$.pipe(
     map(data => [
       {
-        name: `${this.solarPowerName} ${data.last.solarCurrent}`,
+        name: `${this.solarPowerName}`,
         series: data.series.map(sensorData => {
           return { name: sensorData.date, value: sensorData.solarCurrent };
         })
@@ -121,11 +123,10 @@ export class AppComponent implements OnInit {
     ])
   );
 
-  consumptionName = 'Consumption';
-  consumption$ = this.rawData$.pipe(
+  consumption$ = this.data$.pipe(
     map(data => [
       {
-        name: `${this.consumptionName} ${data.last.consumption}`,
+        name: `${this.consumptionName}`,
         series: data.series.map(sensorData => {
           return { name: sensorData.date, value: sensorData.consumption };
         })
@@ -133,14 +134,60 @@ export class AppComponent implements OnInit {
     ])
   );
 
-  dischargeName = 'Discharge';
-  discharge$ = this.rawData$.pipe(
+  discharge$ = this.data$.pipe(
     map(data => [
       {
-        name: `${this.dischargeName} ${data.last.discharge}`,
+        name: `${this.dischargeName}`,
         series: data.series.map(sensorData => {
           return { name: sensorData.date, value: sensorData.discharge };
         })
+      }
+    ])
+  );
+
+  latest$ = new Subject<CombinedSensorData>();
+
+  latestTemperature$ = this.latest$.pipe(
+    map(latest => [
+      {
+        name: this.temperatureName,
+        value: toCelsius(latest.temperature)
+      }
+    ])
+  );
+
+  latestDepth$ = this.latest$.pipe(
+    map(latest => [
+      {
+        name: this.depthName,
+        value: this.toDepth(latest.depth)
+      }
+    ])
+  );
+
+  latestSolarPower$ = this.latest$.pipe(
+    map(latest => [
+      {
+        name: this.solarPowerName,
+        value: latest.solarCurrent
+      }
+    ])
+  );
+
+  latestConsuption$ = this.latest$.pipe(
+    map(latest => [
+      {
+        name: this.consumptionName,
+        value: latest.consumption
+      }
+    ])
+  );
+
+  latestDischarge$ = this.latest$.pipe(
+    map(latest => [
+      {
+        name: this.dischargeName,
+        value: latest.discharge
       }
     ])
   );
@@ -187,7 +234,7 @@ export class AppComponent implements OnInit {
       const value: CombinedSensorData = JSON.parse(r.payload.toString()).value;
       const date = new Date();
 
-      const data$ = this.rawData$;
+      const data$ = this.data$;
       const series = data$.value.series;
       const newData = { date, ...value };
 
@@ -198,6 +245,7 @@ export class AppComponent implements OnInit {
           newData
         ]
       });
+      this.latest$.next(newData);
     });
 
     this.resetChart();
@@ -208,7 +256,7 @@ export class AppComponent implements OnInit {
   }
 
   resetChart() {
-    this.rawData$.next({ last: <CombinedSensorData>{}, series: [] });
+    this.data$.next({ last: <CombinedSensorData>{}, series: [] });
   }
 
   applyGut800Settings() {

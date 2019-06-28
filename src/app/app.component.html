@@ -167,19 +167,35 @@
     <app-line-chart
       [data]="temperature$ | async"
       [name]="temperatureName"
+      [latest]="latestTemperature$ | async"
+      [min]="-30"
+      [max]="40"
+      units="C"
     ></app-line-chart>
-    <app-line-chart [data]="depth$ | async" [name]="depthName"></app-line-chart>
+    <app-line-chart
+      [data]="depth$ | async"
+      [name]="depthName"
+      [latest]="latestDepth$ | async"
+      [min]="0"
+      [max]="7"
+      units="m"
+    ></app-line-chart>
     <app-line-chart
       [data]="solarPower$ | async"
       [name]="solarPowerName"
+      [latest]="latestSolarPower$ | async"
     ></app-line-chart>
     <app-line-chart
       [data]="consumption$ | async"
       [name]="consumptionName"
+      [latest]="latestConsuption$ | async"
     ></app-line-chart>
     <app-line-chart
       [data]="discharge$ | async"
       [name]="dischargeName"
+      [latest]="latestDischarge$ | async"
+      [min]="0"
+      [max]="25"
     ></app-line-chart>
   </mat-sidenav-content>
 </mat-sidenav-container>

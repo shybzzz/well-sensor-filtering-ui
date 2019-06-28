@@ -1,13 +1,18 @@
+<ngx-charts-gauge
+  [results]="latest"
+  [min]="min"
+  [max]="max"
+  [units]="units"
+></ngx-charts-gauge>
 <ngx-charts-line-chart
   [results]="data"
   [gradient]="true"
   [xAxis]="true"
   [yAxis]="true"
-  [legend]="true"
   [showXAxisLabel]="true"
   [showYAxisLabel]="true"
   xAxisLabel="Time"
-  [yAxisLabel]="name"
+  [yAxisLabel]="yAxisLabel"
   [autoScale]="true"
   [timeline]="false"
   [animations]="false"

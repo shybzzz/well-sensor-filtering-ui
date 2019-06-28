@@ -1,6 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
 
-
 const scheme = ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA'];
 
 @Component({
@@ -9,18 +8,18 @@ const scheme = ['#5AA454', '#A10A28', '#C7B42C', '#AAAAAA'];
   styleUrls: ['./line-chart.component.scss']
 })
 export class LineChartComponent implements OnInit {
-
-  @Input() data: [{ name: string, series: [{ name: Date, value: number }] }];
+  @Input() data: [{ name: string; series: [{ name: Date; value: number }] }];
   @Input() name: string;
+  @Input() latest: [{ name: Date; value: number }];
+  @Input() min = 0;
+  @Input() max = 4095;
+  @Input() units = 'arb. units';
 
-  colorScheme = {
-    domain: [scheme[Math.round(Math.random() * (scheme.length - 1))]]
-  };
-
-
-  constructor() { }
-
-  ngOnInit() {
+  get yAxisLabel() {
+    return `${this.name}, ${this.units}`;
   }
 
+  constructor() {}
+
+  ngOnInit() {}
 }
