@@ -1,5 +1,160 @@
-<mat-sidenav-container>
-  <mat-sidenav mode="side" opened>
+<mat-tab-group>
+  <mat-tab label="Gauges">
+    <mat-grid-list cols="2" rowHeight="1:1">
+      <mat-grid-tile>
+        <ngx-charts-gauge
+          [results]="latestTemperature$ | async"
+          [min]="-30"
+          [max]="40"
+          units="C"
+        ></ngx-charts-gauge>
+      </mat-grid-tile>
+      <mat-grid-tile>
+        <ngx-charts-gauge
+          [results]="latestDepth$ | async"
+          [min]="0"
+          [max]="7"
+          units="m"
+        ></ngx-charts-gauge
+      ></mat-grid-tile>
+      <mat-grid-tile>
+        <ngx-charts-gauge
+          [results]="latestSolarPower$ | async"
+          [min]="0"
+          [max]="4095"
+          units="arb. units"
+        ></ngx-charts-gauge>
+      </mat-grid-tile>
+      <mat-grid-tile>
+        <ngx-charts-gauge
+          [results]="latestConsuption$ | async"
+          [min]="0"
+          [max]="4095"
+          units="arb. units"
+        ></ngx-charts-gauge>
+      </mat-grid-tile>
+      <mat-grid-tile>
+        <ngx-charts-gauge
+          [results]="latestDischarge$ | async"
+          [min]="0"
+          [max]="25"
+          units="arb. units"
+        ></ngx-charts-gauge>
+      </mat-grid-tile>
+    </mat-grid-list>
+
+    <!-- <app-line-chart
+      [data]=""
+      [name]="depthName"
+      [latest]=""
+      [min]="0"
+      [max]="7"
+      units="m"
+    ></app-line-chart>
+    <app-line-chart
+      [data]=""
+      [name]="solarPowerName"
+      [latest]=""
+    ></app-line-chart>
+    <app-line-chart
+      [data]="consumption$ | async"
+      [name]="consumptionName"
+      [latest]=""
+    ></app-line-chart>
+    <app-line-chart
+      [data]="discharge$ | async"
+      [name]="dischargeName"
+      [latest]=""
+      [min]="0"
+      [max]="25"
+    ></app-line-chart
+  > -->
+  </mat-tab>
+  <mat-tab label="Plots">
+    <mat-grid-list cols="1" rowHeight="3:1">
+      <mat-grid-tile>
+        <ngx-charts-line-chart
+          [results]="temperature$ | async"
+          [gradient]="true"
+          [xAxis]="true"
+          [yAxis]="true"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          xAxisLabel="Time"
+          [yAxisLabel]="temperatureName + ', C'"
+          [autoScale]="true"
+          [timeline]="false"
+          [animations]="false"
+        >
+        </ngx-charts-line-chart>
+      </mat-grid-tile>
+      <mat-grid-tile>
+        <ngx-charts-line-chart
+          [results]="depth$ | async"
+          [gradient]="true"
+          [xAxis]="true"
+          [yAxis]="true"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          xAxisLabel="Time"
+          [yAxisLabel]="depthName + ', m'"
+          [autoScale]="true"
+          [timeline]="false"
+          [animations]="false"
+        >
+        </ngx-charts-line-chart>
+      </mat-grid-tile>
+      <mat-grid-tile>
+        <ngx-charts-line-chart
+          [results]="solarPower$ | async"
+          [gradient]="true"
+          [xAxis]="true"
+          [yAxis]="true"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          xAxisLabel="Time"
+          [yAxisLabel]="solarPowerName"
+          [autoScale]="true"
+          [timeline]="false"
+          [animations]="false"
+        >
+        </ngx-charts-line-chart>
+      </mat-grid-tile>
+      <mat-grid-tile>
+        <ngx-charts-line-chart
+          [results]="consumption$ | async"
+          [gradient]="true"
+          [xAxis]="true"
+          [yAxis]="true"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          xAxisLabel="Time"
+          [yAxisLabel]="consumptionName"
+          [autoScale]="true"
+          [timeline]="false"
+          [animations]="false"
+        >
+        </ngx-charts-line-chart>
+      </mat-grid-tile>
+      <mat-grid-tile>
+        <ngx-charts-line-chart
+          [results]="discharge$ | async"
+          [gradient]="true"
+          [xAxis]="true"
+          [yAxis]="true"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          xAxisLabel="Time"
+          [yAxisLabel]="dischargeName"
+          [autoScale]="true"
+          [timeline]="false"
+          [animations]="false"
+        >
+        </ngx-charts-line-chart>
+      </mat-grid-tile>
+    </mat-grid-list>
+  </mat-tab>
+  <mat-tab label="Settings">
     <mat-accordion>
       <mat-expansion-panel>
         <mat-expansion-panel-header>
@@ -48,16 +203,20 @@
               [formControl]="mqttPwd"
             />
           </mat-form-field>
-          <button
-            mat-raised-button
-            [matBadge]="isConnected ? 'v' : 'x'"
-            [matBadgeDescription]="isConnected ? 'Connected' : 'No Connection'"
-            [matBadgeColor]="isConnected ? 'primary' : 'warn'"
-            (click)="reconnect()"
-            [disabled]="!!mqttSettingsErrors?.length"
-          >
-            Connect
-          </button>
+          <div>
+            <button
+              mat-raised-button
+              [matBadge]="isConnected ? 'v' : 'x'"
+              [matBadgeDescription]="
+                isConnected ? 'Connected' : 'No Connection'
+              "
+              [matBadgeColor]="isConnected ? 'primary' : 'warn'"
+              (click)="reconnect()"
+              [disabled]="!!mqttSettingsErrors?.length"
+            >
+              Connect
+            </button>
+          </div>
         </div>
       </mat-expansion-panel>
       <mat-expansion-panel>
@@ -162,40 +321,5 @@
         </div>
       </mat-expansion-panel>
     </mat-accordion>
-  </mat-sidenav>
-  <mat-sidenav-content>
-    <app-line-chart
-      [data]="temperature$ | async"
-      [name]="temperatureName"
-      [latest]="latestTemperature$ | async"
-      [min]="-30"
-      [max]="40"
-      units="C"
-    ></app-line-chart>
-    <app-line-chart
-      [data]="depth$ | async"
-      [name]="depthName"
-      [latest]="latestDepth$ | async"
-      [min]="0"
-      [max]="7"
-      units="m"
-    ></app-line-chart>
-    <app-line-chart
-      [data]="solarPower$ | async"
-      [name]="solarPowerName"
-      [latest]="latestSolarPower$ | async"
-    ></app-line-chart>
-    <app-line-chart
-      [data]="consumption$ | async"
-      [name]="consumptionName"
-      [latest]="latestConsuption$ | async"
-    ></app-line-chart>
-    <app-line-chart
-      [data]="discharge$ | async"
-      [name]="dischargeName"
-      [latest]="latestDischarge$ | async"
-      [min]="0"
-      [max]="25"
-    ></app-line-chart>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+  </mat-tab>
+</mat-tab-group>

@@ -1,3 +1,4 @@
+import { MqttSettings } from './model/mqtt-settings';
 import { Component, OnInit } from '@angular/core';
 import { MqttService, MqttConnectionState } from 'ngx-mqtt';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
@@ -13,7 +14,6 @@ import { Gut800Settings } from './model/gut800-settings';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  title: string;
   samplesInFrame = 1000;
 
   subscription: Subscription;
@@ -211,24 +211,15 @@ export class AppComponent implements OnInit {
 
     this.disconnect();
 
-    const v: {
-      deviceId: string;
-      apSSID: string;
-      apIP: string;
-      appPwd: string;
-      server: string;
-      port: number;
-      wssPort?: number;
-      user: string;
-      mqttPwd: string;
-    } = this.mqttSettingsForm.value;
-    const deviceId = v.deviceId;
-    this.title = deviceId;
+    const v: MqttSettings = this.mqttSettingsForm.value;
+
     mqtt.connect({
       username: v.user,
       password: v.mqttPwd,
       servers: [{ host: v.server, port: v.wssPort }]
     });
+
+    const deviceId = v.deviceId;
 
     this.subscription = mqtt.observe(`${deviceId}/Data`).subscribe(r => {
       const value: CombinedSensorData = JSON.parse(r.payload.toString()).value;

@@ -7,19 +7,20 @@ import { MqttModule } from 'ngx-mqtt';
 
 import { AppComponent } from './app.component';
 
-import { LineChartModule } from './components/line-chart/line-chart.module';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 @NgModule({
   declarations: [AppComponent],
   imports: [
-    BrowserModule, BrowserAnimationsModule,
+    BrowserModule,
+    BrowserAnimationsModule,
     ReactiveFormsModule,
     FormsModule,
     MqttModule.forRoot({ connectOnCreate: false, path: '', protocol: 'wss' }),
-    LineChartModule,
-    MaterialModule
+    MaterialModule,
+    NgxChartsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}
