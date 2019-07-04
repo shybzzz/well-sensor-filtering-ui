@@ -13,7 +13,7 @@
         <ngx-charts-gauge
           [results]="latestDepth$ | async"
           [min]="0"
-          [max]="7"
+          [max]="referenceDepth.value"
           units="m"
         ></ngx-charts-gauge
       ></mat-grid-tile>

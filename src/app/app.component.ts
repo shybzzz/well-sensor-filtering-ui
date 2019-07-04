@@ -47,7 +47,7 @@ export class AppComponent implements OnInit {
     );
   }
 
-  referenceDepth = new FormControl(7, [Validators.required]);
+  referenceDepth = new FormControl(5.2, [Validators.required]);
   minCurrent = new FormControl(4e-3, [Validators.required]);
   maxCurrent = new FormControl(20e-3, [Validators.required]);
   r = new FormControl(51, [Validators.required]);

@@ -25,7 +25,7 @@ export function toMeters(
 
 export function getDepth(
   arbUnits: number,
-  referenceDepth = 7, // m
+  referenceDepth = 5.2, // m
   minCurrent = 4e-3, // A
   maxCurrent = 20e-3, // A
   r = 51, // Ohm
@@ -34,15 +34,7 @@ export function getDepth(
   resolution = 12 // bit
 ): number {
   return (
-    referenceDepth -
-    toMeters(
-      arbUnits,
-      minCurrent,
-      maxCurrent,
-      r,
-      maxDepth,
-      voltage,
-      resolution
-    )
+    // referenceDepth -
+    toMeters(arbUnits, minCurrent, maxCurrent, r, maxDepth, voltage, resolution)
   );
 }
