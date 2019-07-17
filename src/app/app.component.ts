@@ -1,3 +1,5 @@
+import { LocalStorageService } from './services/local-storage.service';
+import { MqttConnectionService } from './services/mqtt-connection.service';
 import { MqttSettings } from './model/mqtt-settings';
 import { Component, OnInit } from '@angular/core';
 import { MqttService, MqttConnectionState } from 'ngx-mqtt';
@@ -7,6 +9,7 @@ import { map } from 'rxjs/operators';
 import { CombinedSensorData } from './model/combined-sensor-data';
 import { toCelsius, getDepth } from './well-sensor/data-transformations';
 import { Gut800Settings } from './model/gut800-settings';
+import { MqttDeviceApiService } from './api/mqtt-device-api.service';
 
 @Component({
   selector: 'app-root',
@@ -192,13 +195,26 @@ export class AppComponent implements OnInit {
     ])
   );
 
-  constructor(private mqtt: MqttService) {}
+  healthCheck: string;
+
+  constructor(
+    private mqtt: MqttService,
+    private mqttDeviceApiService: MqttDeviceApiService,
+    private mqttConnectionService: MqttConnectionService,
+    private localStorageService: LocalStorageService
+  ) {}
 
   ngOnInit() {
     this.mqtt.state.subscribe(s => {
       this.mqttState = s;
     });
     this.reconnect();
+    this.mqttDeviceApiService.healthCheck().subscribe(response => {
+      this.healthCheck = response.message;
+    });
+    this.mqttConnectionService.currentMqttServerId$.next(
+      this.localStorageService.getCurrentMqttServerId()
+    );
   }
 
   reconnect() {

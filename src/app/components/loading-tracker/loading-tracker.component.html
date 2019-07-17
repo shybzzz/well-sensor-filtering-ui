@@ -1,0 +1,6 @@
+<mat-spinner *ngIf="loadingService.isRunning$ | async; else contentTmpl">
+</mat-spinner>
+
+<ng-template #contentTmpl>
+  <ng-content></ng-content>
+</ng-template>
