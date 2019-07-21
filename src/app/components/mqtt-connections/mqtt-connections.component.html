@@ -2,7 +2,8 @@
 
 <app-loading-tracker>
   <mat-vertical-stepper [linear]="true" #stepper>
-    <mat-step [stepControl]="mqttServerForm">
+    <!-- Setup Mqtt Server -->
+    <mat-step [completed]="true" [stepControl]="mqttServerForm">
       <ng-template matStepLabel>Fill out MQTT Server Options</ng-template>
       <div>
         <mat-form-field>
@@ -11,6 +12,9 @@
             [value]="currentMqttServerId"
             (selectionChange)="selectMqttServer($event.value)"
           >
+            <mat-option [value]="null">
+              <i class="material-icons">add</i> Add New
+            </mat-option>
             <mat-option
               *ngFor="
                 let mqttServer of mqttConnectionService.mqttServers$ | async
@@ -18,9 +22,6 @@
               [value]="mqttServer.id"
             >
               {{ mqttServer.server }}
-            </mat-option>
-            <mat-option [value]="null">
-              Add New
             </mat-option>
           </mat-select>
         </mat-form-field>
@@ -59,33 +60,79 @@
         <div>
           <button
             mat-raised-button
+            matStepperNext
             (click)="saveMqttServer()"
             [disabled]="!!mqttServerErrors.length || mqttServerForm.pristine"
           >
             Save
           </button>
+        </div>
+      </div>
+    </mat-step>
+
+    <!-- Setup Mqtt User -->
+    <mat-step [completed]="false" [stepControl]="mqttUserForm">
+      <ng-template matStepLabel>Fill out MQTT User Credentials</ng-template>
+      <div>
+        <mat-form-field>
+          <mat-label>Mqtt User</mat-label>
+          <mat-select
+            [value]="currentMqttUserId"
+            (selectionChange)="selectMqttUser($event.value)"
+          >
+            <mat-option [value]="null">
+              <i class="material-icons">add</i> Add New
+            </mat-option>
+            <mat-option
+              *ngFor="let mqttUser of mqttConnectionService.mqttUsers$ | async"
+              [value]="mqttUser.id"
+            >
+              {{ mqttUser.user }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div [formGroup]="mqttUserForm">
+        <div>
+          <mat-form-field>
+            <input
+              matInput
+              type="text"
+              placeholder="User"
+              [formControl]="user"
+              [errorStateMatcher]="matcher"
+            />
+            <mat-error *ngIf="user.hasError('required')">
+              User is <strong>required</strong>
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <div>
+          <mat-form-field>
+            <input
+              matInput
+              type="password"
+              placeholder="Mqtt Password"
+              [formControl]="mqttPassword"
+              [errorStateMatcher]="matcher"
+            />
+          </mat-form-field>
+        </div>
+
+        <div>
           <button
             mat-raised-button
             matStepperNext
-            (click)="connectMqttServer()"
+            (click)="saveMqttUser()"
+            [disabled]="!!mqttUserErrors.length || mqttUserForm.pristine"
           >
-            Connect
+            Save
           </button>
         </div>
       </div>
     </mat-step>
-    <!-- <mat-step [stepControl]="secondFormGroup">
-          <form [formGroup]="secondFormGroup">
-            <ng-template matStepLabel>Fill out your address</ng-template>
-            <mat-form-field>
-              <input matInput placeholder="Address" formControlName="secondCtrl" required>
-            </mat-form-field>
-            <div>
-              <button mat-button matStepperPrevious>Back</button>
-              <button mat-button matStepperNext>Next</button>
-            </div>
-          </form>
-        </mat-step> -->
+
     <mat-step>
       <ng-template matStepLabel>Done</ng-template>
       You are now done.

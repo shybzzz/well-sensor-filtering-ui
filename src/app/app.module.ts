@@ -10,6 +10,7 @@ import { AppComponent } from './app.component';
 
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { HttpClientModule } from '@angular/common/http';
+import { LoadingTrackerModule } from './components/loading-tracker/loading-tracker.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -28,7 +29,8 @@ import { HttpClientModule } from '@angular/common/http';
           './components/mqtt-connections/mqtt-connections.module#MqttConnectionsModule'
       }
     ]),
-    HttpClientModule
+    HttpClientModule,
+    LoadingTrackerModule
   ],
   providers: [],
   bootstrap: [AppComponent]

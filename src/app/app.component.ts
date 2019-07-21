@@ -1,3 +1,4 @@
+import { LoadingService } from './services/loading.service';
 import { LocalStorageService } from './services/local-storage.service';
 import { MqttConnectionService } from './services/mqtt-connection.service';
 import { MqttSettings } from './model/mqtt-settings';
@@ -5,16 +6,19 @@ import { Component, OnInit } from '@angular/core';
 import { MqttService, MqttConnectionState } from 'ngx-mqtt';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Subscription, BehaviorSubject, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { CombinedSensorData } from './model/combined-sensor-data';
 import { toCelsius, getDepth } from './well-sensor/data-transformations';
 import { Gut800Settings } from './model/gut800-settings';
 import { MqttDeviceApiService } from './api/mqtt-device-api.service';
+import { SubscriptionService } from './services/subscription.service';
+import * as shape from 'd3-shape';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  providers: [SubscriptionService, LoadingService]
 })
 export class AppComponent implements OnInit {
   samplesInFrame = 1000;
@@ -22,6 +26,8 @@ export class AppComponent implements OnInit {
   subscription: Subscription;
 
   mqttState: MqttConnectionState;
+
+  shape = shape;
 
   get isConnected(): boolean {
     return this.mqttState === MqttConnectionState.CONNECTED;
@@ -201,7 +207,9 @@ export class AppComponent implements OnInit {
     private mqtt: MqttService,
     private mqttDeviceApiService: MqttDeviceApiService,
     private mqttConnectionService: MqttConnectionService,
-    private localStorageService: LocalStorageService
+    private localStorageService: LocalStorageService,
+    private loadingService: LoadingService,
+    private subscriptionService: SubscriptionService
   ) {}
 
   ngOnInit() {
@@ -209,12 +217,47 @@ export class AppComponent implements OnInit {
       this.mqttState = s;
     });
     this.reconnect();
-    this.mqttDeviceApiService.healthCheck().subscribe(response => {
-      this.healthCheck = response.message;
-    });
-    this.mqttConnectionService.currentMqttServerId$.next(
-      this.localStorageService.getCurrentMqttServerId()
-    );
+
+    this.loadingService
+      .track(this.mqttDeviceApiService.healthCheck())
+      .subscribe(response => {
+        this.healthCheck = response.message;
+      });
+
+    const mqttConnectionService = this.mqttConnectionService;
+    const subscriptionService = this.subscriptionService;
+
+    subscriptionService
+      .takeUntilDestroyed(mqttConnectionService.getMqttServers$)
+      .subscribe(getMqttServers$ =>
+        this.loadingService
+          .track(getMqttServers$)
+          .subscribe(() =>
+            mqttConnectionService.currentMqttServerId$.next(
+              this.localStorageService.getCurrentMqttServerId()
+            )
+          )
+      );
+
+    subscriptionService
+      .takeUntilDestroyed(mqttConnectionService.getMqttUsers$)
+      .subscribe(getMqttUsers$ =>
+        this.loadingService
+          .track(getMqttUsers$)
+          .subscribe(() =>
+            mqttConnectionService.currentMqttUserId$.next(
+              this.localStorageService.getCurrentMqttUserId()
+            )
+          )
+      );
+
+    subscriptionService
+      .takeUntilDestroyed(mqttConnectionService.currentMqttServer$)
+      .subscribe(s => {
+        mqttConnectionService.resetMqttUsers$.next();
+      });
+
+    mqttConnectionService.resetMqttServers$.next();
   }
 
   reconnect() {

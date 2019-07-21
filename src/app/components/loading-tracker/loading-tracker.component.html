@@ -1,6 +1,8 @@
-<mat-spinner *ngIf="loadingService.isRunning$ | async; else contentTmpl">
-</mat-spinner>
-
-<ng-template #contentTmpl>
+<div class="relative">
+  <div class="absolute overlay" *ngIf="loadingService.isRunning$ | async">
+    <div class="holder-center">
+      <mat-spinner> </mat-spinner>
+    </div>
+  </div>
   <ng-content></ng-content>
-</ng-template>
+</div>

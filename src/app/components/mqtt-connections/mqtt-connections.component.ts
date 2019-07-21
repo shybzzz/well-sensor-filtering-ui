@@ -1,6 +1,5 @@
 import { LoadingService } from './../../services/loading.service';
 import { LocalStorageService } from './../../services/local-storage.service';
-import { MqttServer } from './../../model/mqtt-server';
 import { MqttConnectionService } from './../../services/mqtt-connection.service';
 import { Component, OnInit } from '@angular/core';
 import { SubscriptionService } from 'src/app/services/subscription.service';
@@ -47,9 +46,22 @@ export class MqttConnectionsComponent implements OnInit {
     return Object.values(this.mqttServerForm.controls).filter(c => !!c.errors);
   }
 
+  user = new FormControl(null, [Validators.required]);
+  mqttPassword = new FormControl(null, [Validators.required]);
+
+  mqttUserForm = new FormGroup({
+    user: this.user,
+    mqttPassword: this.mqttPassword
+  });
+
+  get mqttUserErrors() {
+    return Object.values(this.mqttUserForm.controls).filter(c => !!c.errors);
+  }
+
   matcher = new MyErrorStateMatcher();
 
   currentMqttServerId: string;
+  currentMqttUserId: string;
 
   constructor(
     public mqttConnectionService: MqttConnectionService,
@@ -62,6 +74,7 @@ export class MqttConnectionsComponent implements OnInit {
   ngOnInit() {
     const subscriptionService = this.subscriptionService;
     const mqttConnectionService = this.mqttConnectionService;
+
     subscriptionService
       .takeUntilDestroyed(mqttConnectionService.currentMqttServer$)
       .subscribe(mqttServer => {
@@ -70,9 +83,23 @@ export class MqttConnectionsComponent implements OnInit {
 
     subscriptionService
       .takeUntilDestroyed(mqttConnectionService.currentMqttServerId$)
-      .subscribe(id => (this.currentMqttServerId = id));
+      .subscribe(id => {
+        this.localStorageSevice.setCurrentMqttServerId(id);
+        this.currentMqttServerId = id;
+      });
 
-    this.getAllMqttServers();
+    subscriptionService
+      .takeUntilDestroyed(mqttConnectionService.currentMqttUser$)
+      .subscribe(mqttUser => {
+        this.mqttUserForm.reset(mqttUser || {});
+      });
+
+    subscriptionService
+      .takeUntilDestroyed(mqttConnectionService.currentMqttUserId$)
+      .subscribe(id => {
+        this.localStorageSevice.setCurrentMqttUserId(id);
+        this.currentMqttUserId = id;
+      });
   }
 
   selectMqttServer(mqttServerId: string) {
@@ -88,20 +115,27 @@ export class MqttConnectionsComponent implements OnInit {
         )
       )
       .subscribe(r => {
-        this.selectMqttServer(r.id);
-        this.getAllMqttServers();
+        this.localStorageSevice.setCurrentMqttServerId(r.id);
+        this.mqttConnectionService.resetMqttServers$.next();
       });
   }
 
-  connectMqttServer() {
-    this.localStorageSevice.setCurrentMqttServerId(this.currentMqttServerId);
+  selectMqttUser(mqttUserId: string) {
+    this.mqttConnectionService.currentMqttUserId$.next(mqttUserId);
   }
 
-  private getAllMqttServers() {
+  saveMqttUser() {
+    const mqttServerId = this.currentMqttServerId;
     this.loadingService
-      .track(this.mqttDeviceApiService.getAllMqttServers())
-      .subscribe(mqttServers => {
-        this.mqttConnectionService.mqttServers$.next(mqttServers);
+      .track(
+        this.mqttDeviceApiService.saveMqttUser(
+          { mqttServerId, ...this.mqttUserForm.value },
+          this.currentMqttUserId
+        )
+      )
+      .subscribe(r => {
+        this.localStorageSevice.setCurrentMqttUserId(r.id);
+        this.mqttConnectionService.resetMqttUsers$.next();
       });
   }
 }

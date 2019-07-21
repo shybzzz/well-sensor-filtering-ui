@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
 const CurrentMqttServerId = 'currenMqtttServerId';
+const CurrentMqttUserId = 'currenMqtttUserId';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,14 @@ export class LocalStorageService {
   }
 
   getCurrentMqttServerId(): string {
-    return localStorage.getItem('currenMqtttServerId');
+    return localStorage.getItem(CurrentMqttServerId);
+  }
+
+  setCurrentMqttUserId(mqttUserId: string) {
+    localStorage.setItem(CurrentMqttUserId, mqttUserId);
+  }
+
+  getCurrentMqttUserId(): string {
+    return localStorage.getItem(CurrentMqttUserId);
   }
 }

@@ -1,3 +1,4 @@
+import { MqttUser } from './../model/mqtt-user';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -22,8 +23,20 @@ export class MqttDeviceApiService {
   saveServer(server: MqttServer, serverId?: string): Observable<MqttServer> {
     return this.httpClient.put<MqttServer>(
       `${api}/mqtt-servers/${serverId || ''}`,
-      server,
-      { headers: { 'Content-Type': 'application/json' } }
+      server
+    );
+  }
+
+  getMqttUsers(mqttServerId: string): Observable<MqttUser[]> {
+    return this.httpClient.get<MqttUser[]>(
+      `${api}/mqtt-servers/${mqttServerId}/mqtt-users`
+    );
+  }
+
+  saveMqttUser(user: MqttUser, userId?: string): Observable<MqttUser> {
+    return this.httpClient.put<MqttUser>(
+      `${api}/mqtt-users/${userId || ''}`,
+      user
     );
   }
 }
