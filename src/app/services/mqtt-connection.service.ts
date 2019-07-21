@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import { ReplaySubject, combineLatest, Subject } from 'rxjs';
 import { MqttServer } from '../model/mqtt-server';
 import { map, withLatestFrom, tap, filter } from 'rxjs/operators';
+import { MqttDevice } from '../model/mqtt-device';
 
 @Injectable({
   providedIn: 'root'
@@ -11,12 +12,15 @@ import { map, withLatestFrom, tap, filter } from 'rxjs/operators';
 export class MqttConnectionService {
   resetMqttServers$ = new Subject();
   resetMqttUsers$ = new Subject();
+  resetMqttDevices$ = new Subject();
 
   mqttServers$ = new ReplaySubject<MqttServer[]>(1);
   mqttUsers$ = new ReplaySubject<MqttUser[]>(1);
+  mqttDevices$ = new ReplaySubject<MqttDevice[]>(1);
 
   currentMqttServerId$ = new ReplaySubject<string>(1);
   currentMqttUserId$ = new ReplaySubject<string>(1);
+  currentMqttDeviceId$ = new ReplaySubject<string>(1);
 
   getMqttServers$ = this.resetMqttServers$.pipe(
     map(() =>
@@ -48,6 +52,22 @@ export class MqttConnectionService {
     withLatestFrom(this.mqttUsers$),
     map(([mqttUserId, mqttUsers]) =>
       mqttUsers.find(mqttUser => mqttUser.id === mqttUserId)
+    )
+  );
+
+  getMqttDevices$ = this.resetMqttDevices$.pipe(
+    withLatestFrom(this.currentMqttUser$.pipe(filter(mqttUser => !!mqttUser))),
+    map(([, mqttUser]) =>
+      this.mqttDeviceApiService
+        .getMqttDevices(mqttUser.id)
+        .pipe(tap(mqttDevices => this.mqttDevices$.next(mqttDevices)))
+    )
+  );
+
+  currentMqttDevice$ = this.currentMqttDeviceId$.pipe(
+    withLatestFrom(this.mqttDevices$),
+    map(([mqttDeviceId, mqttDevices]) =>
+      mqttDevices.find(mqttDevice => mqttDevice.id === mqttDeviceId)
     )
   );
 

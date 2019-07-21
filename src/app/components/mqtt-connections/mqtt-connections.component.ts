@@ -58,10 +58,23 @@ export class MqttConnectionsComponent implements OnInit {
     return Object.values(this.mqttUserForm.controls).filter(c => !!c.errors);
   }
 
+  deviceName = new FormControl(null, [Validators.required]);
+  sensorType = new FormControl(7, [Validators.required]);
+
+  mqttDeviceForm = new FormGroup({
+    deviceName: this.deviceName,
+    sensorType: this.sensorType
+  });
+
+  get mqttDeviceErrors() {
+    return Object.values(this.mqttDeviceForm.controls).filter(c => !!c.errors);
+  }
+
   matcher = new MyErrorStateMatcher();
 
   currentMqttServerId: string;
   currentMqttUserId: string;
+  currentMqttDeviceId: string;
 
   constructor(
     public mqttConnectionService: MqttConnectionService,
@@ -100,6 +113,19 @@ export class MqttConnectionsComponent implements OnInit {
         this.localStorageSevice.setCurrentMqttUserId(id);
         this.currentMqttUserId = id;
       });
+
+    subscriptionService
+      .takeUntilDestroyed(mqttConnectionService.currentMqttDevice$)
+      .subscribe(mqttDevice => {
+        this.mqttDeviceForm.reset(mqttDevice || {});
+      });
+
+    subscriptionService
+      .takeUntilDestroyed(mqttConnectionService.currentMqttDeviceId$)
+      .subscribe(id => {
+        this.localStorageSevice.setCurrentMqttDeviceId(id);
+        this.currentMqttDeviceId = id;
+      });
   }
 
   selectMqttServer(mqttServerId: string) {
@@ -136,6 +162,25 @@ export class MqttConnectionsComponent implements OnInit {
       .subscribe(r => {
         this.localStorageSevice.setCurrentMqttUserId(r.id);
         this.mqttConnectionService.resetMqttUsers$.next();
+      });
+  }
+
+  selectMqttDevice(mqttDeviceId: string) {
+    this.mqttConnectionService.currentMqttDeviceId$.next(mqttDeviceId);
+  }
+
+  saveMqttDevice() {
+    const mqttUserId = this.currentMqttUserId;
+    this.loadingService
+      .track(
+        this.mqttDeviceApiService.saveMqttDevice(
+          { mqttUserId: mqttUserId, ...this.mqttDeviceForm.value },
+          this.currentMqttDeviceId
+        )
+      )
+      .subscribe(r => {
+        this.localStorageSevice.setCurrentMqttDeviceId(r.id);
+        this.mqttConnectionService.resetMqttDevices$.next();
       });
   }
 }

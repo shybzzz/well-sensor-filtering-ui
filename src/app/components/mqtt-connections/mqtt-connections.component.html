@@ -2,8 +2,12 @@
 
 <app-loading-tracker>
   <mat-vertical-stepper [linear]="true" #stepper>
+    <ng-template matStepperIcon="done" let-index="index">
+      {{ (index + 1) * 10 }}
+    </ng-template>
+
     <!-- Setup Mqtt Server -->
-    <mat-step [completed]="true" [stepControl]="mqttServerForm">
+    <mat-step [completed]="!!currentMqttServerId">
       <ng-template matStepLabel>Fill out MQTT Server Options</ng-template>
       <div>
         <mat-form-field>
@@ -71,7 +75,7 @@
     </mat-step>
 
     <!-- Setup Mqtt User -->
-    <mat-step [completed]="false" [stepControl]="mqttUserForm">
+    <mat-step [completed]="!!currentMqttUserId">
       <ng-template matStepLabel>Fill out MQTT User Credentials</ng-template>
       <div>
         <mat-form-field>
@@ -133,12 +137,99 @@
       </div>
     </mat-step>
 
-    <mat-step>
-      <ng-template matStepLabel>Done</ng-template>
-      You are now done.
+    <!-- Setup Mqtt Device -->
+    <mat-step [completed]="!!currentMqttDeviceId">
+      <ng-template matStepLabel>Fill out MQTT Device Options</ng-template>
       <div>
-        <button mat-button matStepperPrevious>Back</button>
-        <button mat-button (click)="stepper.reset()">Reset</button>
+        <mat-form-field>
+          <mat-label>Mqtt Device</mat-label>
+          <mat-select
+            [value]="currentMqttDeviceId"
+            (selectionChange)="selectMqttDevice($event.value)"
+          >
+            <mat-option [value]="null">
+              <i class="material-icons">add</i> Add New
+            </mat-option>
+            <mat-option
+              *ngFor="
+                let mqttDevice of mqttConnectionService.mqttDevices$ | async
+              "
+              [value]="mqttDevice.id"
+            >
+              {{ mqttDevice.deviceName }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div [formGroup]="mqttDeviceForm">
+        <div>
+          <mat-form-field>
+            <input
+              matInput
+              type="text"
+              placeholder="Device Name"
+              [formControl]="deviceName"
+              [errorStateMatcher]="matcher"
+            />
+            <mat-error *ngIf="deviceName.hasError('required')">
+              Device Name is <strong>required</strong>
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div>
+          <mat-form-field>
+            <mat-label>Sensor Type</mat-label>
+            <mat-select
+              [formControl]="sensorType"
+              [errorStateMatcher]="matcher"
+            >
+              <mat-option [value]="0">
+                Simulation
+              </mat-option>
+
+              <mat-option [value]="1">
+                Analog Test
+              </mat-option>
+
+              <mat-option [value]="2">
+                DS18B20 Temperature
+              </mat-option>
+
+              <mat-option [value]="3">
+                GUT800 Depth
+              </mat-option>
+
+              <mat-option [value]="4">
+                INA260 Voltage
+              </mat-option>
+
+              <mat-option [value]="5">
+                INA260 Current
+              </mat-option>
+
+              <mat-option [value]="6">
+                INA260 Power
+              </mat-option>
+
+              <mat-option [value]="7">
+                Combined
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div>
+          <button
+            mat-raised-button
+            matStepperNext
+            (click)="saveMqttDevice()"
+            [disabled]="!!mqttDeviceErrors.length || mqttDeviceForm.pristine"
+          >
+            Save
+          </button>
+        </div>
       </div>
     </mat-step>
   </mat-vertical-stepper>

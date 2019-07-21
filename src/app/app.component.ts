@@ -257,6 +257,24 @@ export class AppComponent implements OnInit {
         mqttConnectionService.resetMqttUsers$.next();
       });
 
+    subscriptionService
+      .takeUntilDestroyed(mqttConnectionService.getMqttDevices$)
+      .subscribe(getMqttDevices$ =>
+        this.loadingService
+          .track(getMqttDevices$)
+          .subscribe(() =>
+            mqttConnectionService.currentMqttDeviceId$.next(
+              this.localStorageService.getCurrentMqttDeviceId()
+            )
+          )
+      );
+
+    subscriptionService
+      .takeUntilDestroyed(mqttConnectionService.currentMqttUser$)
+      .subscribe(s => {
+        mqttConnectionService.resetMqttDevices$.next();
+      });
+
     mqttConnectionService.resetMqttServers$.next();
   }
 
