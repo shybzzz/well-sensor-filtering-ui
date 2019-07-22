@@ -1,3 +1,4 @@
+import { MqttService, MqttConnectionState } from 'ngx-mqtt';
 import { MqttUser } from './../model/mqtt-user';
 import { MqttDeviceApiService } from 'src/app/api/mqtt-device-api.service';
 import { Injectable } from '@angular/core';
@@ -13,6 +14,7 @@ export class MqttConnectionService {
   resetMqttServers$ = new Subject();
   resetMqttUsers$ = new Subject();
   resetMqttDevices$ = new Subject();
+  resetMqttConnection$ = new Subject();
 
   mqttServers$ = new ReplaySubject<MqttServer[]>(1);
   mqttUsers$ = new ReplaySubject<MqttUser[]>(1);
@@ -71,5 +73,39 @@ export class MqttConnectionService {
     )
   );
 
-  constructor(private mqttDeviceApiService: MqttDeviceApiService) {}
+  mqttSettings$ = combineLatest([
+    this.currentMqttServer$.pipe(filter(mqttServer => !!mqttServer)),
+    this.currentMqttUser$.pipe(filter(mqttUser => !!mqttUser)),
+    this.currentMqttDevice$.pipe(filter(mqttDevice => !!mqttDevice))
+  ]);
+
+  mqttSettingsNotReady$ = combineLatest([
+    this.currentMqttServer$.pipe(filter(mqttServer => !mqttServer)),
+    this.currentMqttUser$.pipe(filter(mqttUser => !mqttUser)),
+    this.currentMqttDevice$.pipe(filter(mqttDevice => !mqttDevice))
+  ]);
+
+  observeMqttDevice$ = this.resetMqttConnection$.pipe(
+    withLatestFrom(this.mqttSettings$, this.mqttService.state),
+    map(([, [mqttServer, mqttUser, mqttDevice], mqttConnectionState]) => {
+      const mqttService = this.mqttService;
+
+      if (mqttConnectionState === MqttConnectionState.CONNECTED) {
+        mqttService.disconnect(true);
+      }
+
+      mqttService.connect({
+        username: mqttUser.user,
+        password: mqttUser.mqttPassword,
+        servers: [{ host: mqttServer.server, port: mqttServer.wssPort }]
+      });
+
+      return mqttService.observe(`${mqttDevice.deviceName}/Data`);
+    })
+  );
+
+  constructor(
+    private mqttDeviceApiService: MqttDeviceApiService,
+    private mqttService: MqttService
+  ) {}
 }

@@ -7,7 +7,9 @@
     </ng-template>
 
     <!-- Setup Mqtt Server -->
-    <mat-step [completed]="!!currentMqttServerId">
+    <mat-step
+      [completed]="!!(mqttConnectionService.currentMqttServer$ | async)"
+    >
       <ng-template matStepLabel>Fill out MQTT Server Options</ng-template>
       <div>
         <mat-form-field>
@@ -75,7 +77,7 @@
     </mat-step>
 
     <!-- Setup Mqtt User -->
-    <mat-step [completed]="!!currentMqttUserId">
+    <mat-step [completed]="!!(mqttConnectionService.currentMqttUser$ | async)">
       <ng-template matStepLabel>Fill out MQTT User Credentials</ng-template>
       <div>
         <mat-form-field>
@@ -138,7 +140,9 @@
     </mat-step>
 
     <!-- Setup Mqtt Device -->
-    <mat-step [completed]="!!currentMqttDeviceId">
+    <mat-step
+      [completed]="!!(mqttConnectionService.currentMqttDevice$ | async)"
+    >
       <ng-template matStepLabel>Fill out MQTT Device Options</ng-template>
       <div>
         <mat-form-field>
@@ -230,6 +234,16 @@
             Save
           </button>
         </div>
+      </div>
+    </mat-step>
+
+    <!-- Connect Mqtt -->
+    <mat-step>
+      <ng-template matStepLabel>Connect MQTT</ng-template>
+      <div>
+        <button mat-raised-button [routerLink]="['/mqtt-device']">
+          Connect
+        </button>
       </div>
     </mat-step>
   </mat-vertical-stepper>
