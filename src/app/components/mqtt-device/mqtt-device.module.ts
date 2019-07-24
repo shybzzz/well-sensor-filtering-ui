@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 import { MaterialModule } from 'src/app/material/material.module';
 import { LoadingTrackerModule } from '../loading-tracker/loading-tracker.module';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 @NgModule({
   declarations: [MqttDeviceComponent],
@@ -16,7 +17,8 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
     LoadingTrackerModule,
     ReactiveFormsModule,
     FormsModule,
-    NgxChartsModule
+    NgxChartsModule,
+    FlexLayoutModule
   ]
 })
 export class MqttDeviceModule {}

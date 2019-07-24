@@ -9,28 +9,33 @@ import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { LoadingTrackerModule } from './components/loading-tracker/loading-tracker.module';
 import { MqttModule } from 'ngx-mqtt';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 @NgModule({
   declarations: [AppComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    RouterModule.forRoot([
-      {
-        path: 'mqtt-connections',
-        loadChildren:
-          './components/mqtt-connections/mqtt-connections.module#MqttConnectionsModule'
-      },
-      {
-        path: 'mqtt-device',
-        loadChildren:
-          './components/mqtt-device/mqtt-device.module#MqttDeviceModule'
-      }
-    ]),
+    RouterModule.forRoot(
+      [
+        {
+          path: 'mqtt-connections',
+          loadChildren:
+            './components/mqtt-connections/mqtt-connections.module#MqttConnectionsModule'
+        },
+        {
+          path: 'mqtt-device',
+          loadChildren:
+            './components/mqtt-device/mqtt-device.module#MqttDeviceModule'
+        }
+      ],
+      { useHash: true }
+    ),
     MqttModule.forRoot({ connectOnCreate: false, path: '', protocol: 'wss' }),
     HttpClientModule,
     LoadingTrackerModule,
-    MaterialModule
+    MaterialModule,
+    FlexLayoutModule
   ],
   providers: [],
   bootstrap: [AppComponent]

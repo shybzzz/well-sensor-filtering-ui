@@ -1,48 +1,60 @@
-<h1>{{ (mqttConnectionService.currentMqttDevice$ | async)?.deviceName }}</h1>
+<h1>
+  {{ (mqttConnectionService.currentMqttDevice$ | async)?.deviceName }}
+  <button mat-raised-button [routerLink]="['/mqtt-connections']">
+    Select Another Device
+  </button>
+</h1>
 <mat-tab-group>
   <mat-tab label="Gauges">
-    <mat-grid-list cols="2" rowHeight="1:1">
-      <mat-grid-tile>
+    <div fxLayout.lt-lg="column" fxLayout.gt-lg="row">
+      <div fxFlex.xs="50" fxFlex.gt-xs="30" fxFlex.gt-lg="20">
         <ngx-charts-gauge
           [results]="latestTemperature$ | async"
           [min]="-30"
           [max]="40"
           units="C"
-        ></ngx-charts-gauge>
-      </mat-grid-tile>
-      <mat-grid-tile>
+        >
+        </ngx-charts-gauge>
+      </div>
+
+      <div fxFlex.xs="50" fxFlex.gt-xs="30" fxFlex.gt-lg="20">
         <ngx-charts-gauge
           [results]="latestDepth$ | async"
           [min]="0"
           [max]="referenceDepth.value"
           units="m"
-        ></ngx-charts-gauge
-      ></mat-grid-tile>
-      <mat-grid-tile>
+        >
+        </ngx-charts-gauge>
+      </div>
+
+      <div fxFlex.xs="50" fxFlex.gt-xs="30" fxFlex.gt-lg="20">
         <ngx-charts-gauge
           [results]="latestSolarPower$ | async"
           [min]="0"
           [max]="4095"
           units="arb. units"
-        ></ngx-charts-gauge>
-      </mat-grid-tile>
-      <mat-grid-tile>
+        >
+        </ngx-charts-gauge>
+      </div>
+      <div fxFlex.xs="50" fxFlex.gt-xs="30" fxFlex.gt-lg="20">
         <ngx-charts-gauge
           [results]="latestConsuption$ | async"
           [min]="0"
           [max]="4095"
           units="arb. units"
-        ></ngx-charts-gauge>
-      </mat-grid-tile>
-      <mat-grid-tile>
+        >
+        </ngx-charts-gauge>
+      </div>
+      <div fxFlex.xs="50" fxFlex.gt-xs="30" fxFlex.gt-lg="20">
         <ngx-charts-gauge
           [results]="latestDischarge$ | async"
           [min]="0"
           [max]="25"
           units="arb. units"
-        ></ngx-charts-gauge>
-      </mat-grid-tile>
-    </mat-grid-list>
+        >
+        </ngx-charts-gauge>
+      </div>
+    </div>
   </mat-tab>
   <mat-tab label="Plots">
     <mat-grid-list cols="1" rowHeight="3:1">

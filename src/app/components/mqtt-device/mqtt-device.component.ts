@@ -176,10 +176,7 @@ export class MqttDeviceComponent implements OnInit, OnDestroy {
     subscriptionService
       .takeUntilDestroyed(mqttConnectionService.observeMqttDevice$)
       .subscribe(observeMqttDevice$ => {
-        const subscription = this.mqttSubscription;
-        if (subscription) {
-          subscription.unsubscribe();
-        }
+        this.unsubscribe();
 
         this.mqttSubscription = observeMqttDevice$.subscribe(mqttMessage => {
           const value: CombinedSensorData = JSON.parse(
@@ -221,6 +218,7 @@ export class MqttDeviceComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.unsubscribe();
     const mqttService = this.mqttService;
     if (mqttService.state.value === MqttConnectionState.CONNECTED) {
       mqttService.disconnect();
@@ -239,5 +237,12 @@ export class MqttDeviceComponent implements OnInit, OnDestroy {
       settings.voltage,
       settings.resolution
     );
+  }
+
+  private unsubscribe() {
+    const subscription = this.mqttSubscription;
+    if (subscription) {
+      subscription.unsubscribe();
+    }
   }
 }

@@ -58,10 +58,6 @@ body {
   }
 }
 
-mat-form-field {
-  width: 22em;
-}
-
 textarea {
   height: 10em;
 }
@@ -77,4 +73,8 @@ textarea {
 .overlay {
   z-index: 20000;
   background-color: #f0f8ff80;
+}
+
+.grid {
+  display: grid;
 }
