@@ -2,9 +2,9 @@ import { SubscriptionService } from 'src/app/services/subscription.service';
 import { MqttConnectionService } from './../../services/mqtt-connection.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { LoadingService } from 'src/app/services/loading.service';
-import { Subscription, BehaviorSubject, Subject } from 'rxjs';
+import { Subscription, BehaviorSubject, Subject, merge } from 'rxjs';
 import { CombinedSensorData } from 'src/app/model/combined-sensor-data';
-import { map } from 'rxjs/operators';
+import { map, debounceTime } from 'rxjs/operators';
 import { toCelsius, getDepth } from 'src/app/well-sensor/data-transformations';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
 import { Gut800Settings } from 'src/app/model/gut800-settings';
@@ -163,6 +163,15 @@ export class MqttDeviceComponent implements OnInit, OnDestroy {
   }
 
   gut800Settings: Gut800Settings = this.gut800SettingsForm.value;
+
+  deviceWorking$ = this.data$.pipe(map(() => true));
+
+  deviceStopped$ = this.data$.pipe(
+    debounceTime(5000),
+    map(() => false)
+  );
+
+  deviceState$ = merge(this.deviceWorking$, this.deviceStopped$);
 
   constructor(
     public mqttConnectionService: MqttConnectionService,

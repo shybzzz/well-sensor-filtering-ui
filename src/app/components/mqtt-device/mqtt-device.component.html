@@ -3,6 +3,7 @@
   <button mat-raised-button [routerLink]="['/mqtt-connections']">
     Select Another Device
   </button>
+  {{ deviceState$ | async }}
 </h1>
 <mat-tab-group>
   <mat-tab label="Gauges">

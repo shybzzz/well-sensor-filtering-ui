@@ -2,7 +2,7 @@ import { MqttService, MqttConnectionState } from 'ngx-mqtt';
 import { MqttUser } from './../model/mqtt-user';
 import { MqttDeviceApiService } from 'src/app/api/mqtt-device-api.service';
 import { Injectable } from '@angular/core';
-import { ReplaySubject, combineLatest, Subject } from 'rxjs';
+import { ReplaySubject, combineLatest, Subject, merge } from 'rxjs';
 import { MqttServer } from '../model/mqtt-server';
 import { map, withLatestFrom, tap, filter } from 'rxjs/operators';
 import { MqttDevice } from '../model/mqtt-device';
@@ -79,10 +79,21 @@ export class MqttConnectionService {
     this.currentMqttDevice$.pipe(filter(mqttDevice => !!mqttDevice))
   ]);
 
-  mqttSettingsNotReady$ = combineLatest([
+  mqttSettingsUndefined$ = combineLatest([
+    this.currentMqttServerId$.pipe(filter(mqttServerId => !mqttServerId)),
+    this.currentMqttUserId$.pipe(filter(mqttUserId => !mqttUserId)),
+    this.currentMqttDeviceId$.pipe(filter(mqttDeviceId => !mqttDeviceId))
+  ]);
+
+  mqttSettingsCorrupted = combineLatest([
     this.currentMqttServer$.pipe(filter(mqttServer => !mqttServer)),
     this.currentMqttUser$.pipe(filter(mqttUser => !mqttUser)),
     this.currentMqttDevice$.pipe(filter(mqttDevice => !mqttDevice))
+  ]);
+
+  mqttSettingsNotReady$ = merge([
+    this.mqttSettingsUndefined$,
+    this.mqttSettingsCorrupted
   ]);
 
   observeMqttDevice$ = this.resetMqttConnection$.pipe(
