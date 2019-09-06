@@ -189,36 +189,8 @@
               [formControl]="sensorType"
               [errorStateMatcher]="matcher"
             >
-              <mat-option [value]="0">
-                Simulation
-              </mat-option>
-
-              <mat-option [value]="1">
-                Analog Test
-              </mat-option>
-
-              <mat-option [value]="2">
-                DS18B20 Temperature
-              </mat-option>
-
-              <mat-option [value]="3">
-                GUT800 Depth
-              </mat-option>
-
-              <mat-option [value]="4">
-                INA260 Voltage
-              </mat-option>
-
-              <mat-option [value]="5">
-                INA260 Current
-              </mat-option>
-
-              <mat-option [value]="6">
-                INA260 Power
-              </mat-option>
-
-              <mat-option [value]="7">
-                Combined
+              <mat-option *ngFor="let t of sensorTypes" [value]="t">
+                {{ t | sensorTypeToText }}
               </mat-option>
             </mat-select>
           </mat-form-field>

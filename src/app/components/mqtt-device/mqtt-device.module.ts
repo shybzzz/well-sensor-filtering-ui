@@ -7,6 +7,7 @@ import { MaterialModule } from 'src/app/material/material.module';
 import { LoadingTrackerModule } from '../loading-tracker/loading-tracker.module';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { SensorTypeToTextModule } from 'src/app/pipes/sensor-type-to-text/sensor-type-to-text.module';
 
 @NgModule({
   declarations: [MqttDeviceComponent],
@@ -18,7 +19,8 @@ import { FlexLayoutModule } from '@angular/flex-layout';
     ReactiveFormsModule,
     FormsModule,
     NgxChartsModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    SensorTypeToTextModule
   ]
 })
 export class MqttDeviceModule {}

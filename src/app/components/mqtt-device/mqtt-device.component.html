@@ -1,249 +1,269 @@
-<h1>
-  {{ (mqttConnectionService.currentMqttDevice$ | async)?.deviceName }}
-  <button mat-raised-button [routerLink]="['/mqtt-connections']">
-    Select Another Device
-  </button>
-  {{ deviceState$ | async }}
-</h1>
-<mat-tab-group>
-  <mat-tab label="Gauges">
-    <div fxLayout.lt-lg="column" fxLayout.gt-lg="row">
-      <div fxFlex.xs="50" fxFlex.gt-xs="30" fxFlex.gt-lg="20">
-        <ngx-charts-gauge
-          [results]="latestTemperature$ | async"
-          [min]="-30"
-          [max]="40"
-          units="C"
-        >
-        </ngx-charts-gauge>
-      </div>
+<mat-card>
+  <mat-card-title>
+    {{ (mqttConnectionService.currentMqttDevice$ | async)?.deviceName }}
+  </mat-card-title>
+  <mat-card-subtitle>
+    <span>
+      {{
+        (mqttConnectionService.currentMqttDevice$ | async)?.sensorType
+          | sensorTypeToText
+      }}
+    </span>
+    <span> ({{ (deviceState$ | async) ? 'Online' : 'Offline' }}) </span>
+  </mat-card-subtitle>
+  <mat-card-actions align="start">
+    <button mat-raised-button [routerLink]="['/mqtt-connections']">
+      <mat-icon>
+        cast-connected
+      </mat-icon>
+      <span>
+        Select Another Device
+      </span>
+    </button>
+  </mat-card-actions>
+  <mat-card-content>
+    <mat-tab-group>
+      <mat-tab label="Gauges">
+        <div fxLayout.lt-lg="column" fxLayout.gt-lg="row">
+          <div fxFlex.xs="50" fxFlex.gt-xs="30" fxFlex.gt-lg="20">
+            <ngx-charts-gauge
+              [results]="latestTemperature$ | async"
+              [min]="-30"
+              [max]="40"
+              units="C"
+            >
+            </ngx-charts-gauge>
+          </div>
 
-      <div fxFlex.xs="50" fxFlex.gt-xs="30" fxFlex.gt-lg="20">
-        <ngx-charts-gauge
-          [results]="latestDepth$ | async"
-          [min]="0"
-          [max]="referenceDepth.value"
-          units="m"
-        >
-        </ngx-charts-gauge>
-      </div>
+          <div fxFlex.xs="50" fxFlex.gt-xs="30" fxFlex.gt-lg="20">
+            <ngx-charts-gauge
+              [results]="latestDepth$ | async"
+              [min]="0"
+              [max]="referenceDepth.value"
+              units="m"
+            >
+            </ngx-charts-gauge>
+          </div>
 
-      <div fxFlex.xs="50" fxFlex.gt-xs="30" fxFlex.gt-lg="20">
-        <ngx-charts-gauge
-          [results]="latestSolarPower$ | async"
-          [min]="0"
-          [max]="4095"
-          units="arb. units"
-        >
-        </ngx-charts-gauge>
-      </div>
-      <div fxFlex.xs="50" fxFlex.gt-xs="30" fxFlex.gt-lg="20">
-        <ngx-charts-gauge
-          [results]="latestConsuption$ | async"
-          [min]="0"
-          [max]="4095"
-          units="arb. units"
-        >
-        </ngx-charts-gauge>
-      </div>
-      <div fxFlex.xs="50" fxFlex.gt-xs="30" fxFlex.gt-lg="20">
-        <ngx-charts-gauge
-          [results]="latestDischarge$ | async"
-          [min]="0"
-          [max]="25"
-          units="arb. units"
-        >
-        </ngx-charts-gauge>
-      </div>
-    </div>
-  </mat-tab>
-  <mat-tab label="Plots">
-    <mat-grid-list cols="1" rowHeight="3:1">
-      <mat-grid-tile>
-        <ngx-charts-line-chart
-          [results]="temperature$ | async"
-          [gradient]="true"
-          [xAxis]="true"
-          [yAxis]="true"
-          [showXAxisLabel]="true"
-          [showYAxisLabel]="true"
-          xAxisLabel="Time"
-          [yAxisLabel]="temperatureName + ', C'"
-          [autoScale]="true"
-          [timeline]="false"
-          [animations]="false"
-        >
-        </ngx-charts-line-chart>
-      </mat-grid-tile>
-      <mat-grid-tile>
-        <ngx-charts-line-chart
-          [results]="depth$ | async"
-          [gradient]="true"
-          [xAxis]="true"
-          [yAxis]="true"
-          [showXAxisLabel]="true"
-          [showYAxisLabel]="true"
-          xAxisLabel="Time"
-          [yAxisLabel]="depthName + ', m'"
-          [autoScale]="true"
-          [timeline]="false"
-          [animations]="false"
-        >
-        </ngx-charts-line-chart>
-      </mat-grid-tile>
-      <mat-grid-tile>
-        <ngx-charts-line-chart
-          [results]="solarPower$ | async"
-          [gradient]="true"
-          [xAxis]="true"
-          [yAxis]="true"
-          [showXAxisLabel]="true"
-          [showYAxisLabel]="true"
-          xAxisLabel="Time"
-          [yAxisLabel]="solarPowerName"
-          [autoScale]="true"
-          [timeline]="false"
-          [animations]="false"
-        >
-        </ngx-charts-line-chart>
-      </mat-grid-tile>
-      <mat-grid-tile>
-        <ngx-charts-line-chart
-          [results]="consumption$ | async"
-          [gradient]="true"
-          [xAxis]="true"
-          [yAxis]="true"
-          [showXAxisLabel]="true"
-          [showYAxisLabel]="true"
-          xAxisLabel="Time"
-          [yAxisLabel]="consumptionName"
-          [autoScale]="true"
-          [timeline]="false"
-          [animations]="false"
-        >
-        </ngx-charts-line-chart>
-      </mat-grid-tile>
-      <mat-grid-tile>
-        <ngx-charts-line-chart
-          [results]="discharge$ | async"
-          [gradient]="true"
-          [xAxis]="true"
-          [yAxis]="true"
-          [showXAxisLabel]="true"
-          [showYAxisLabel]="true"
-          xAxisLabel="Time"
-          [yAxisLabel]="dischargeName"
-          [autoScale]="true"
-          [timeline]="false"
-          [animations]="false"
-        >
-        </ngx-charts-line-chart>
-      </mat-grid-tile>
-    </mat-grid-list>
-  </mat-tab>
-  <mat-tab label="Settings">
-    <mat-accordion>
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            Chart Settings
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <mat-form-field>
-          <input
-            type="number"
-            [(ngModel)]="samplesInFrame"
-            matInput
-            placeholder="Samples in Frame"
-          />
-        </mat-form-field>
-        <div>
-          <button mat-raised-button (click)="resetChart()">
-            Reset
-          </button>
+          <div fxFlex.xs="50" fxFlex.gt-xs="30" fxFlex.gt-lg="20">
+            <ngx-charts-gauge
+              [results]="latestSolarPower$ | async"
+              [min]="0"
+              [max]="4095"
+              units="arb. units"
+            >
+            </ngx-charts-gauge>
+          </div>
+          <div fxFlex.xs="50" fxFlex.gt-xs="30" fxFlex.gt-lg="20">
+            <ngx-charts-gauge
+              [results]="latestConsuption$ | async"
+              [min]="0"
+              [max]="4095"
+              units="arb. units"
+            >
+            </ngx-charts-gauge>
+          </div>
+          <div fxFlex.xs="50" fxFlex.gt-xs="30" fxFlex.gt-lg="20">
+            <ngx-charts-gauge
+              [results]="latestDischarge$ | async"
+              [min]="0"
+              [max]="25"
+              units="arb. units"
+            >
+            </ngx-charts-gauge>
+          </div>
         </div>
-      </mat-expansion-panel>
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            GUT800 Settings
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        <div [formGroup]="gut800SettingsForm">
-          <mat-form-field>
-            <input
-              matInput
-              type="number"
-              step=".001"
-              placeholder="Reference Depth, m"
-              [formControl]="referenceDepth"
-            />
-          </mat-form-field>
-          <mat-form-field>
-            <input
-              matInput
-              type="number"
-              step=".001"
-              placeholder="Zero Level Current, A"
-              [formControl]="minCurrent"
-            />
-          </mat-form-field>
-          <mat-form-field>
-            <input
-              matInput
-              type="number"
-              step=".001"
-              placeholder="Max Level Current, A"
-              [formControl]="maxCurrent"
-            />
-          </mat-form-field>
-          <mat-form-field>
-            <input
-              matInput
-              type="number"
-              step=".001"
-              placeholder="Resistance, Ohms"
-              [formControl]="r"
-            />
-          </mat-form-field>
-          <mat-form-field>
-            <input
-              matInput
-              type="number"
-              step=".001"
-              placeholder="Max Depth, m"
-              [formControl]="maxDepth"
-            />
-          </mat-form-field>
-          <mat-form-field>
-            <input
-              matInput
-              type="number"
-              step=".001"
-              placeholder="Voltage, V"
-              [formControl]="voltage"
-            />
-          </mat-form-field>
-          <mat-form-field>
-            <input
-              matInput
-              type="number"
-              step=".001"
-              placeholder="ADC Resoltion, bits"
-              [formControl]="resolution"
-            />
-          </mat-form-field>
-        </div>
-        <div>
-          <button
-            mat-raised-button
-            (click)="applyGut800Settings()"
-            [disabled]="!!gut800SettingsErrors?.length"
-          >
-            Apply
-          </button>
-        </div>
-      </mat-expansion-panel>
-    </mat-accordion>
-  </mat-tab>
-</mat-tab-group>
+      </mat-tab>
+      <mat-tab label="Plots">
+        <mat-grid-list cols="1" rowHeight="3:1">
+          <mat-grid-tile>
+            <ngx-charts-line-chart
+              [results]="temperature$ | async"
+              [gradient]="true"
+              [xAxis]="true"
+              [yAxis]="true"
+              [showXAxisLabel]="true"
+              [showYAxisLabel]="true"
+              xAxisLabel="Time"
+              [yAxisLabel]="temperatureName + ', C'"
+              [autoScale]="true"
+              [timeline]="false"
+              [animations]="false"
+            >
+            </ngx-charts-line-chart>
+          </mat-grid-tile>
+          <mat-grid-tile>
+            <ngx-charts-line-chart
+              [results]="depth$ | async"
+              [gradient]="true"
+              [xAxis]="true"
+              [yAxis]="true"
+              [showXAxisLabel]="true"
+              [showYAxisLabel]="true"
+              xAxisLabel="Time"
+              [yAxisLabel]="depthName + ', m'"
+              [autoScale]="true"
+              [timeline]="false"
+              [animations]="false"
+            >
+            </ngx-charts-line-chart>
+          </mat-grid-tile>
+          <mat-grid-tile>
+            <ngx-charts-line-chart
+              [results]="solarPower$ | async"
+              [gradient]="true"
+              [xAxis]="true"
+              [yAxis]="true"
+              [showXAxisLabel]="true"
+              [showYAxisLabel]="true"
+              xAxisLabel="Time"
+              [yAxisLabel]="solarPowerName"
+              [autoScale]="true"
+              [timeline]="false"
+              [animations]="false"
+            >
+            </ngx-charts-line-chart>
+          </mat-grid-tile>
+          <mat-grid-tile>
+            <ngx-charts-line-chart
+              [results]="consumption$ | async"
+              [gradient]="true"
+              [xAxis]="true"
+              [yAxis]="true"
+              [showXAxisLabel]="true"
+              [showYAxisLabel]="true"
+              xAxisLabel="Time"
+              [yAxisLabel]="consumptionName"
+              [autoScale]="true"
+              [timeline]="false"
+              [animations]="false"
+            >
+            </ngx-charts-line-chart>
+          </mat-grid-tile>
+          <mat-grid-tile>
+            <ngx-charts-line-chart
+              [results]="discharge$ | async"
+              [gradient]="true"
+              [xAxis]="true"
+              [yAxis]="true"
+              [showXAxisLabel]="true"
+              [showYAxisLabel]="true"
+              xAxisLabel="Time"
+              [yAxisLabel]="dischargeName"
+              [autoScale]="true"
+              [timeline]="false"
+              [animations]="false"
+            >
+            </ngx-charts-line-chart>
+          </mat-grid-tile>
+        </mat-grid-list>
+      </mat-tab>
+      <mat-tab label="Settings">
+        <mat-accordion>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Chart Settings
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-form-field>
+              <input
+                type="number"
+                [(ngModel)]="samplesInFrame"
+                matInput
+                placeholder="Samples in Frame"
+              />
+            </mat-form-field>
+            <div>
+              <button mat-raised-button (click)="resetChart()">
+                Reset
+              </button>
+            </div>
+          </mat-expansion-panel>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                GUT800 Settings
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div [formGroup]="gut800SettingsForm">
+              <mat-form-field>
+                <input
+                  matInput
+                  type="number"
+                  step=".001"
+                  placeholder="Reference Depth, m"
+                  [formControl]="referenceDepth"
+                />
+              </mat-form-field>
+              <mat-form-field>
+                <input
+                  matInput
+                  type="number"
+                  step=".001"
+                  placeholder="Zero Level Current, A"
+                  [formControl]="minCurrent"
+                />
+              </mat-form-field>
+              <mat-form-field>
+                <input
+                  matInput
+                  type="number"
+                  step=".001"
+                  placeholder="Max Level Current, A"
+                  [formControl]="maxCurrent"
+                />
+              </mat-form-field>
+              <mat-form-field>
+                <input
+                  matInput
+                  type="number"
+                  step=".001"
+                  placeholder="Resistance, Ohms"
+                  [formControl]="r"
+                />
+              </mat-form-field>
+              <mat-form-field>
+                <input
+                  matInput
+                  type="number"
+                  step=".001"
+                  placeholder="Max Depth, m"
+                  [formControl]="maxDepth"
+                />
+              </mat-form-field>
+              <mat-form-field>
+                <input
+                  matInput
+                  type="number"
+                  step=".001"
+                  placeholder="Voltage, V"
+                  [formControl]="voltage"
+                />
+              </mat-form-field>
+              <mat-form-field>
+                <input
+                  matInput
+                  type="number"
+                  step=".001"
+                  placeholder="ADC Resoltion, bits"
+                  [formControl]="resolution"
+                />
+              </mat-form-field>
+            </div>
+            <div>
+              <button
+                mat-raised-button
+                (click)="applyGut800Settings()"
+                [disabled]="!!gut800SettingsErrors?.length"
+              >
+                Apply
+              </button>
+            </div>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card-content>
+</mat-card>
+<h1></h1>

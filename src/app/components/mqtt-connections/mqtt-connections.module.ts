@@ -5,6 +5,7 @@ import { MqttConnectionsComponent } from './mqtt-connections.component';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LoadingTrackerModule } from '../loading-tracker/loading-tracker.module';
+import { SensorTypeToTextModule } from 'src/app/pipes/sensor-type-to-text/sensor-type-to-text.module';
 
 @NgModule({
   declarations: [MqttConnectionsComponent],
@@ -13,7 +14,8 @@ import { LoadingTrackerModule } from '../loading-tracker/loading-tracker.module'
     RouterModule.forChild([{ path: '', component: MqttConnectionsComponent }]),
     MaterialModule,
     LoadingTrackerModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    SensorTypeToTextModule
   ]
 })
 export class MqttConnectionsModule {}

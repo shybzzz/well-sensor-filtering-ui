@@ -164,7 +164,7 @@ export class MqttDeviceComponent implements OnInit, OnDestroy {
 
   gut800Settings: Gut800Settings = this.gut800SettingsForm.value;
 
-  deviceWorking$ = this.data$.pipe(map(() => true));
+  deviceWorking$ = this.data$.pipe(map(data => !!data.series.length));
 
   deviceStopped$ = this.data$.pipe(
     debounceTime(5000),

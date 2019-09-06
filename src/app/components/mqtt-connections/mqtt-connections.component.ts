@@ -1,3 +1,4 @@
+import { SensorType } from './../../model/sensor-type.enum';
 import { LoadingService } from './../../services/loading.service';
 import { LocalStorageService } from './../../services/local-storage.service';
 import { MqttConnectionService } from './../../services/mqtt-connection.service';
@@ -12,6 +13,7 @@ import {
   NgForm
 } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
+import { EnumHelpers } from 'src/app/helpers/enum-helpers';
 
 export class MyErrorStateMatcher implements ErrorStateMatcher {
   isErrorState(
@@ -76,6 +78,8 @@ export class MqttConnectionsComponent implements OnInit {
   currentMqttUserId: string;
   currentMqttDeviceId: string;
 
+  sensorTypes = EnumHelpers.getValues(SensorType);
+
   constructor(
     public mqttConnectionService: MqttConnectionService,
     private mqttDeviceApiService: MqttDeviceApiService,
@@ -87,6 +91,8 @@ export class MqttConnectionsComponent implements OnInit {
   ngOnInit() {
     const subscriptionService = this.subscriptionService;
     const mqttConnectionService = this.mqttConnectionService;
+
+    console.log(this.sensorTypes);
 
     subscriptionService
       .takeUntilDestroyed(mqttConnectionService.currentMqttServer$)
@@ -183,5 +189,4 @@ export class MqttConnectionsComponent implements OnInit {
         this.mqttConnectionService.resetMqttDevices$.next();
       });
   }
-
 }
