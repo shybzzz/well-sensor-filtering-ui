@@ -8,9 +8,10 @@ import { LoadingTrackerModule } from '../loading-tracker/loading-tracker.module'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { SensorTypeToTextModule } from 'src/app/pipes/sensor-type-to-text/sensor-type-to-text.module';
+import { MqttDeviceSettingsDialogComponent } from './dialogs/mqtt-device-settings-dialog/mqtt-device-settings-dialog.component';
 
 @NgModule({
-  declarations: [MqttDeviceComponent],
+  declarations: [MqttDeviceComponent, MqttDeviceSettingsDialogComponent],
   imports: [
     CommonModule,
     RouterModule.forChild([{ path: '', component: MqttDeviceComponent }]),
@@ -21,6 +22,7 @@ import { SensorTypeToTextModule } from 'src/app/pipes/sensor-type-to-text/sensor
     NgxChartsModule,
     FlexLayoutModule,
     SensorTypeToTextModule
-  ]
+  ],
+  entryComponents: [MqttDeviceComponent, MqttDeviceSettingsDialogComponent]
 })
 export class MqttDeviceModule {}

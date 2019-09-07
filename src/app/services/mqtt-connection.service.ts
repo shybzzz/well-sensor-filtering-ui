@@ -96,7 +96,7 @@ export class MqttConnectionService {
     this.mqttSettingsCorrupted
   ]);
 
-  observeMqttDevice$ = this.resetMqttConnection$.pipe(
+  observeMqttData$ = this.resetMqttConnection$.pipe(
     withLatestFrom(this.mqttSettings$, this.mqttService.state),
     map(([, [mqttServer, mqttUser, mqttDevice], mqttConnectionState]) => {
       const mqttService = this.mqttService;

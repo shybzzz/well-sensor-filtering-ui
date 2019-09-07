@@ -92,8 +92,6 @@ export class MqttConnectionsComponent implements OnInit {
     const subscriptionService = this.subscriptionService;
     const mqttConnectionService = this.mqttConnectionService;
 
-    console.log(this.sensorTypes);
-
     subscriptionService
       .takeUntilDestroyed(mqttConnectionService.currentMqttServer$)
       .subscribe(mqttServer => {

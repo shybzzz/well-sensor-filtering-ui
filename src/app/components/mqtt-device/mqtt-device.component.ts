@@ -1,3 +1,4 @@
+import { MqttDeviceSettingsDialogComponent } from './dialogs/mqtt-device-settings-dialog/mqtt-device-settings-dialog.component';
 import { SubscriptionService } from 'src/app/services/subscription.service';
 import { MqttConnectionService } from './../../services/mqtt-connection.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
@@ -9,6 +10,7 @@ import { toCelsius, getDepth } from 'src/app/well-sensor/data-transformations';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
 import { Gut800Settings } from 'src/app/model/gut800-settings';
 import { MqttService, MqttConnectionState } from 'ngx-mqtt';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-mqtt-device',
@@ -176,18 +178,19 @@ export class MqttDeviceComponent implements OnInit, OnDestroy {
   constructor(
     public mqttConnectionService: MqttConnectionService,
     private mqttService: MqttService,
-    private subscriptionService: SubscriptionService
+    private subscriptionService: SubscriptionService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit() {
     const mqttConnectionService = this.mqttConnectionService;
     const subscriptionService = this.subscriptionService;
     subscriptionService
-      .takeUntilDestroyed(mqttConnectionService.observeMqttDevice$)
-      .subscribe(observeMqttDevice$ => {
+      .takeUntilDestroyed(mqttConnectionService.observeMqttData$)
+      .subscribe(observeMqttData$ => {
         this.unsubscribe();
 
-        this.mqttSubscription = observeMqttDevice$.subscribe(mqttMessage => {
+        this.mqttSubscription = observeMqttData$.subscribe(mqttMessage => {
           const value: CombinedSensorData = JSON.parse(
             mqttMessage.payload.toString()
           ).value;
@@ -224,6 +227,14 @@ export class MqttDeviceComponent implements OnInit, OnDestroy {
   applyGut800Settings() {
     this.gut800Settings = this.gut800SettingsForm.value;
     this.resetChart();
+  }
+
+  openMqttDeviceSettingsDialog(): void {
+    const dialogRef = this.dialog.open(MqttDeviceSettingsDialogComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed', result);
+    });
   }
 
   ngOnDestroy() {

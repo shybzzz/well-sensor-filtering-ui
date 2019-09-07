@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Settings</h1>
+<div mat-dialog-content>
+  Delay Time
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button mat-dialog-close>Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    [mat-dialog-close]="'Hello!'"
+    cdkFocusInitial
+  >
+    Ok
+  </button>
+</div>
