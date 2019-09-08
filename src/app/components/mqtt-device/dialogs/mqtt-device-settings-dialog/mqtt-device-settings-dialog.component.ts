@@ -1,3 +1,5 @@
+import { InvalidUntouchedMatcher } from './../../../../helpers/invalid-untouched-matcher';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
@@ -6,10 +8,13 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./mqtt-device-settings-dialog.component.scss']
 })
 export class MqttDeviceSettingsDialogComponent implements OnInit {
+  minimumDealay = 500; // ms
+  delay = new FormControl(500, [Validators.required, Validators.min(500)]);
+  formGroup = new FormGroup({ delay: this.delay });
 
-  constructor() { }
+  matcher = new InvalidUntouchedMatcher();
 
-  ngOnInit() {
-  }
+  constructor() {}
 
+  ngOnInit() {}
 }

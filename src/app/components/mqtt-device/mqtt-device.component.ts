@@ -1,3 +1,4 @@
+import { MqttDevice } from './../../model/mqtt-device';
 import { MqttDeviceSettingsDialogComponent } from './dialogs/mqtt-device-settings-dialog/mqtt-device-settings-dialog.component';
 import { SubscriptionService } from 'src/app/services/subscription.service';
 import { MqttConnectionService } from './../../services/mqtt-connection.service';
@@ -175,6 +176,8 @@ export class MqttDeviceComponent implements OnInit, OnDestroy {
 
   deviceState$ = merge(this.deviceWorking$, this.deviceStopped$);
 
+  mqttDevice: MqttDevice;
+
   constructor(
     public mqttConnectionService: MqttConnectionService,
     private mqttService: MqttService,
@@ -218,6 +221,12 @@ export class MqttDeviceComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         mqttConnectionService.resetMqttConnection$.next();
       });
+
+    subscriptionService
+      .takeUntilDestroyed(mqttConnectionService.currentMqttDevice$)
+      .subscribe(mqttDevice => {
+        this.mqttDevice = mqttDevice;
+      });
   }
 
   resetChart() {
@@ -231,9 +240,19 @@ export class MqttDeviceComponent implements OnInit, OnDestroy {
 
   openMqttDeviceSettingsDialog(): void {
     const dialogRef = this.dialog.open(MqttDeviceSettingsDialogComponent);
-
+    const mqttService = this.mqttService;
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed', result);
+      const mqttDevice = this.mqttDevice;
+      if (mqttDevice) {
+        this.subscriptionService
+          .takeUntilDestroyed(
+            mqttService.publish(
+              `${mqttDevice.deviceName}/Config`,
+              JSON.stringify(result)
+            )
+          )
+          .subscribe();
+      }
     });
   }
 

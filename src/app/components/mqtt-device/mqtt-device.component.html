@@ -1,13 +1,10 @@
 <mat-card>
   <mat-card-title>
-    {{ (mqttConnectionService.currentMqttDevice$ | async)?.deviceName }}
+    {{ mqttDevice?.deviceName }}
   </mat-card-title>
   <mat-card-subtitle>
     <span>
-      {{
-        (mqttConnectionService.currentMqttDevice$ | async)?.sensorType
-          | sensorTypeToText
-      }}
+      {{ mqttDevice?.sensorType | sensorTypeToText }}
     </span>
     <span> ({{ (deviceState$ | async) ? 'Online' : 'Offline' }}) </span>
   </mat-card-subtitle>
@@ -26,7 +23,6 @@
       mat-raised-button
       color="accent"
       (click)="openMqttDeviceSettingsDialog()"
-      [disabled]="!(deviceState$ | async)"
     >
       <mat-icon>router-wireless-settings</mat-icon>
       <span fxHide.lt-sm>

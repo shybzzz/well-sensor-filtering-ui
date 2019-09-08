@@ -1,13 +1,37 @@
 <h1 mat-dialog-title>Settings</h1>
-<div mat-dialog-content>
-  Delay Time
+<div [formGroup]="formGroup" mat-dialog-content>
+  <mat-form-field class="example-full-width">
+    <input
+      matInput
+      placeholder="Delay Time (ms)"
+      [formControl]="delay"
+      [errorStateMatcher]="matcher"
+      type="number"
+    />
+    <mat-hint>
+      Minimum Delay Time is <strong>{{ minimumDealay }}</strong>
+    </mat-hint>
+    <mat-error
+      *ngIf="delay.hasError('email') && !emailFormControl.hasError('required')"
+    >
+      Please enter a valid email address
+    </mat-error>
+    <mat-error *ngIf="delay.hasError('required')">
+      Delay Time is <strong>required</strong>
+    </mat-error>
+    <mat-error *ngIf="delay.hasError('min')">
+      Enter value greater then
+      <strong>{{ delay.errors['min']?.min | json }}</strong>
+    </mat-error>
+  </mat-form-field>
 </div>
 <div mat-dialog-actions>
   <button mat-raised-button mat-dialog-close>Cancel</button>
   <button
     mat-raised-button
     color="primary"
-    [mat-dialog-close]="'Hello!'"
+    [mat-dialog-close]="formGroup.value"
+    [disabled]="formGroup.invalid"
     cdkFocusInitial
   >
     Ok
