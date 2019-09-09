@@ -1,3 +1,4 @@
+import { InvalidUntouchedMatcher } from './../../helpers/invalid-untouched-matcher';
 import { SensorType } from './../../model/sensor-type.enum';
 import { LoadingService } from './../../services/loading.service';
 import { LocalStorageService } from './../../services/local-storage.service';
@@ -8,26 +9,8 @@ import { MqttDeviceApiService } from 'src/app/api/mqtt-device-api.service';
 import {
   FormControl,
   Validators,
-  FormGroup,
-  FormGroupDirective,
-  NgForm
-} from '@angular/forms';
-import { ErrorStateMatcher } from '@angular/material/core';
+  FormGroup} from '@angular/forms';
 import { EnumHelpers } from 'src/app/helpers/enum-helpers';
-
-export class MyErrorStateMatcher implements ErrorStateMatcher {
-  isErrorState(
-    control: FormControl | null,
-    form: FormGroupDirective | NgForm | null
-  ): boolean {
-    const isSubmitted = form && form.submitted;
-    return !!(
-      control &&
-      control.invalid &&
-      (control.dirty || control.touched || isSubmitted)
-    );
-  }
-}
 
 @Component({
   selector: 'app-mqtt-connections',
@@ -72,7 +55,7 @@ export class MqttConnectionsComponent implements OnInit {
     return Object.values(this.mqttDeviceForm.controls).filter(c => !!c.errors);
   }
 
-  matcher = new MyErrorStateMatcher();
+  matcher = new InvalidUntouchedMatcher();
 
   currentMqttServerId: string;
   currentMqttUserId: string;
