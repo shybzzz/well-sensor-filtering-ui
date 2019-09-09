@@ -11,11 +11,6 @@
     <mat-hint>
       Minimum Delay Time is <strong>{{ minimumDealay }}</strong>
     </mat-hint>
-    <mat-error
-      *ngIf="delay.hasError('email') && !emailFormControl.hasError('required')"
-    >
-      Please enter a valid email address
-    </mat-error>
     <mat-error *ngIf="delay.hasError('required')">
       Delay Time is <strong>required</strong>
     </mat-error>
