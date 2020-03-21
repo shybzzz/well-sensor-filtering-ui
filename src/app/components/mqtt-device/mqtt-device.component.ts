@@ -7,7 +7,11 @@ import { LoadingService } from 'src/app/services/loading.service';
 import { Subscription, BehaviorSubject, Subject, merge } from 'rxjs';
 import { CombinedSensorData } from 'src/app/model/combined-sensor-data';
 import { map, debounceTime } from 'rxjs/operators';
-import { toCelsius, getDepth } from 'src/app/well-sensor/data-transformations';
+import {
+  toCelsius,
+  getDepth,
+  toMeters
+} from 'src/app/well-sensor/data-transformations';
 import { FormControl, Validators, FormGroup } from '@angular/forms';
 import { Gut800Settings } from 'src/app/model/gut800-settings';
 import { MqttService, MqttConnectionState } from 'ngx-mqtt';
@@ -145,9 +149,9 @@ export class MqttDeviceComponent implements OnInit, OnDestroy {
   minCurrent = new FormControl(4e-3, [Validators.required]);
   maxCurrent = new FormControl(20e-3, [Validators.required]);
   r = new FormControl(51, [Validators.required]);
-  maxDepth = new FormControl(7, [Validators.required]);
-  voltage = new FormControl(3.3, [Validators.required]);
-  resolution = new FormControl(12, [Validators.required]);
+  maxDepth = new FormControl(8, [Validators.required]);
+  voltage = new FormControl(1, [Validators.required]);
+  resolution = new FormControl(10, [Validators.required]);
 
   gut800SettingsForm = new FormGroup({
     referenceDepth: this.referenceDepth,
@@ -266,9 +270,8 @@ export class MqttDeviceComponent implements OnInit, OnDestroy {
 
   private toDepth(arbUnits: number) {
     const settings = this.gut800Settings;
-    return getDepth(
+    return toMeters(
       arbUnits,
-      settings.referenceDepth,
       settings.minCurrent,
       settings.maxCurrent,
       settings.r,
