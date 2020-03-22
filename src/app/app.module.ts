@@ -21,12 +21,12 @@ import { FlexLayoutModule } from '@angular/flex-layout';
         {
           path: 'mqtt-connections',
           loadChildren:
-            './components/mqtt-connections/mqtt-connections.module#MqttConnectionsModule'
+            () => import('./components/mqtt-connections/mqtt-connections.module').then(m => m.MqttConnectionsModule)
         },
         {
           path: 'mqtt-device',
           loadChildren:
-            './components/mqtt-device/mqtt-device.module#MqttDeviceModule'
+            () => import('./components/mqtt-device/mqtt-device.module').then(m => m.MqttDeviceModule)
         }
       ],
       { useHash: true }
