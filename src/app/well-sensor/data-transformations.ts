@@ -15,7 +15,8 @@ export function toMeters(
   maxVoltage: number, // V
   resolution: number // bit
 ): number {
-  const maxArbUnits = getMaxArbUnits(resolution);
+  const maxArbUnits = 1088;
+  // const maxArbUnits = getMaxArbUnits(resolution);
   const voltage = (arbUnits * maxVoltage) / maxArbUnits;
   const current = voltage / r;
   const meters =

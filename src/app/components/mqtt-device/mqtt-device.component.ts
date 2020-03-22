@@ -148,8 +148,8 @@ export class MqttDeviceComponent implements OnInit, OnDestroy {
   referenceDepth = new FormControl(5.2, [Validators.required]);
   minCurrent = new FormControl(4e-3, [Validators.required]);
   maxCurrent = new FormControl(20e-3, [Validators.required]);
-  r = new FormControl(51, [Validators.required]);
-  maxDepth = new FormControl(8, [Validators.required]);
+  r = new FormControl(44, [Validators.required]);
+  maxDepth = new FormControl(7, [Validators.required]);
   voltage = new FormControl(1, [Validators.required]);
   resolution = new FormControl(10, [Validators.required]);
 

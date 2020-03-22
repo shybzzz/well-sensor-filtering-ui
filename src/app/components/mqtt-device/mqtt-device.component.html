@@ -48,7 +48,7 @@
             <ngx-charts-gauge
               [results]="latestDepth$ | async"
               [min]="0"
-              [max]="referenceDepth.value"
+              [max]="maxDepth.value"
               units="m"
             >
             </ngx-charts-gauge>
