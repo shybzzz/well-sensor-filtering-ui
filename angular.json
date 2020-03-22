@@ -136,5 +136,8 @@
       }
     }
   },
-  "defaultProject": "well-sensor-filtering-ui"
+  "defaultProject": "well-sensor-filtering-ui",
+  "cli": {
+    "analytics": false
+  }
 }
