@@ -22,12 +22,26 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
-    # Runs a single command using the runners shell
-    - name: Run a one-line script
-      run: echo Hello, world!
-
-    # Runs a set of commands using the runners shell
-    - name: Run a multi-line script
-      run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+    - name: Cache
+      uses: actions/cache@v1.1.2
+      with:
+        # A directory to store and save the cache
+        path: node_modules
+        # An explicit key for restoring and saving the cache
+        key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+        # An ordered list of keys to use for restoring the cache if no cache hit occurred for key
+        restore-keys: |
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
+    
+    - name: Install
+      run: npm install
+    
+    - name: Build
+      run: ng build -prod
+    
+    - name: Publish Artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: dist
+        path: dist    
