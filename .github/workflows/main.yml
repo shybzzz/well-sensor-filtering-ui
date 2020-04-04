@@ -38,13 +38,27 @@ jobs:
 
     - name: Build
       run: npm run build-prod
+      
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        # Artifact name
+        name: well-sensor-filtering-ui
+        # Directory containing files to upload
+        path: 'dist/well-sensor-filtering-ui'
 
   deploy:
     needs: [build]
     runs-on: [ubuntu-latest]
     name: Sync Angular Application to S3
     steps:
-      - name: Deploy
+      - name: Download artifact
+        uses: actions/download-artifact@v1.0.0
+        with:
+          # Artifact name
+          name: well-sensor-filtering-ui
+          
+      - name: Sync to S3
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
           args: --acl public-read --follow-symlinks --delete
@@ -53,5 +67,4 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'eu-west-1'   # optional: defaults to us-east-1
-          SOURCE_DIR: 'dist/well-sensor-filtering-ui'      # optional: defaults to entire repository
   
