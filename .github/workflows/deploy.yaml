@@ -1,14 +1,12 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Well-sensor UI CI
+name: Well-sensor UI - Deploy to S3
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
   push:
     branches: [master]
-  pull_request:
-    branches: [master, release]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -34,9 +32,38 @@ jobs:
           restore-keys: |
             ${{ runner.OS }}-build-
             ${{ runner.OS }}-
-
       - name: Install
         run: npm install
 
       - name: Build
         run: npm run build-prod
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          # Artifact name
+          name: well-sensor-filtering-ui
+          # Directory containing files to upload
+          path: "dist/well-sensor-filtering-ui"
+
+  deploy:
+    needs: [build]
+    runs-on: [ubuntu-latest]
+    name: Sync Angular Application to S3
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v1.0.0
+        with:
+          # Artifact name
+          name: well-sensor-filtering-ui
+
+      - name: Sync to S3
+        uses: jakejarvis/s3-sync-action@v0.5.1
+        with:
+          args: --acl public-read --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "eu-west-1" # optional: defaults to us-east-1
+          SOURCE_DIR: "well-sensor-filtering-ui"
